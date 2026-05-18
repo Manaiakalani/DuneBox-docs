@@ -8,12 +8,26 @@ DuneBox is the primary AR sandbox application. It runs on Windows, macOS, or Lin
 
 ---
 
+## Automated Setup (Recommended)
+
+On Windows, the setup script handles everything below automatically:
+
+```powershell
+# Run from elevated PowerShell on your sandbox PC
+cd DuneBox-docs\scripts
+.\setup-windows.ps1
+```
+
+See [`scripts/setup-windows.ps1`](../scripts/setup-windows.ps1) for details. The rest of this guide covers manual setup.
+
+---
+
 ## Prerequisites
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| OpenFrameworks | 0.9.8+ | Application framework |
-| Visual Studio 2017+ (Windows) | — | C++ compiler |
+| OpenFrameworks | 0.12.0 | Application framework |
+| Visual Studio 2022 (Windows) | — | C++ compiler |
 | Xcode (macOS) | — | C++ compiler |
 | make + gcc (Linux) | — | C++ compiler |
 

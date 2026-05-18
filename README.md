@@ -12,6 +12,19 @@ This repo contains the complete build guide for DuneBox — a home-built augment
 | **[DuneBox-sandcam](https://github.com/Manaiakalani/DuneBox-sandcam)** | Hackable sandbox — creatures, ArUco triggers, AI guide | Python / pygame |
 | **[DuneBox-docs](https://github.com/Manaiakalani/DuneBox-docs)** | This repo — build guide, BOM, troubleshooting | Markdown |
 
+## ⚡ Quick Start (Windows)
+
+Run this in an **elevated PowerShell** on your sandbox PC to install everything automatically:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force
+git clone https://github.com/Manaiakalani/DuneBox-docs.git
+cd DuneBox-docs\scripts
+.\setup-windows.ps1
+```
+
+This installs Git, Visual Studio Build Tools, Python, OpenFrameworks, clones both DuneBox repos, and installs all addons + dependencies. Takes ~30 minutes on a fresh Windows install.
+
 ## Guides
 
 ### Getting Started
