@@ -5,7 +5,7 @@
     Installs everything needed to build and run DuneBox + DuneBox-sandcam on Windows.
 
 .DESCRIPTION
-    Targets: Lenovo ThinkCentre M720Q + Quadro P400 (or any Windows 10/11 PC with Nvidia GPU)
+    Targets: Lenovo ThinkCentre M720Q + Quadro P620 (or any Windows 10/11 PC with Nvidia GPU)
     
     Installs:
       - Git
@@ -97,7 +97,7 @@ if ($gpu) {
     if (-not $nvidiaDriverInstalled) {
         Write-Host "  ⚠️  No driver detected. Download from:" -ForegroundColor Yellow
         Write-Host "     https://www.nvidia.com/Download/index.aspx" -ForegroundColor White
-        Write-Host "     Select: Quadro → Quadro P-Series → Quadro P400 → Windows 10/11 64-bit" -ForegroundColor Gray
+        Write-Host "     Select: Quadro → Quadro P-Series → Quadro P620 → Windows 10/11 64-bit" -ForegroundColor Gray
     }
 } else {
     Write-Host "  ⚠️  No Nvidia GPU detected. Water simulation requires Nvidia GPU." -ForegroundColor Yellow

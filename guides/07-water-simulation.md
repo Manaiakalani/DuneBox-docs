@@ -103,7 +103,7 @@ The rain gesture detects hands above the sand surface:
 | GPU | Expected FPS | Notes |
 |---|---|---|
 | GTX 1060+ | 30–60 FPS | Full speed, smooth water |
-| **Quadro P400** | **10–20 FPS** | Functional but slow on complex flows |
+| **Quadro P620** | **20–35 FPS** | Solid for most water scenarios |
 | Intel UHD 630 | — | Water sim disabled (topology only) |
 
 The water simulation is the most GPU-intensive part of DuneBox. If FPS drops below 15, consider:

@@ -48,7 +48,7 @@ This installs Git, Visual Studio Build Tools, Python, OpenFrameworks, clones bot
                     └──────┬──────┘
                            │ HDMI
                     ┌──────┴──────┐
-                    │   Mini PC    │  ← Lenovo M720Q + Quadro P400
+                    │   Mini PC    │  ← Lenovo M720Q + Quadro P620
                     │  (DuneBox)   │
                     └──────┬──────┘
                            │ USB
@@ -67,7 +67,7 @@ This installs Git, Visual Studio Build Tools, Python, OpenFrameworks, clones bot
 |---|---|---|
 | Kinect v1, v2, Azure DK | — | $0 |
 | Projector | — | $0 |
-| Lenovo M720Q + Quadro P400 | — | $0 |
+| Lenovo M720Q + Quadro P620 | — | $0 |
 | — | Sand + box + frame + cables | **$220–365** |
 
 ## License

@@ -46,7 +46,7 @@
 - On macOS, OpenGL 3.2 core profile is the default — should work.
 
 #### Water simulation is very slow / laggy
-- **Expected on Quadro P400**: ~10–20 FPS for complex water scenes. The P400 has ~15% of the GTX 1060's compute power.
+- **Expected on Quadro P620**: ~20–35 FPS for complex water scenes. The P620 has ~30% of the GTX 1060's compute power.
 - Reduce sandbox area in settings (smaller simulation grid = faster)
 - Close other GPU-intensive applications
 - On Linux, ensure you're using the Nvidia proprietary driver, not nouveau
@@ -115,7 +115,7 @@ Laptops with Nvidia Optimus may default to the Intel IGP instead of the Nvidia G
 ```bash
 __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./DuneBox
 ```
-Or configure in `nvidia-settings`. Desktop PCs with PCIe GPUs (like the M720Q + Quadro P400) don't have this problem.
+Or configure in `nvidia-settings`. Desktop PCs with PCIe GPUs (like the M720Q + Quadro P620) don't have this problem.
 
 ---
 

@@ -48,26 +48,26 @@ Make sure you have this adapter. They're available on eBay/Amazon for ~$10.
 
 ### PC Compatibility Matrix
 
-#### 🥇 Lenovo ThinkCentre M720Q + Quadro P400 (RECOMMENDED)
+#### 🥇 Lenovo ThinkCentre M720Q + Quadro P620 (RECOMMENDED)
 
 | Spec | Detail |
 |---|---|
 | CPU | i5-8400T/8500T (6-core, 3.3–3.5 GHz boost) |
-| GPU | Nvidia Quadro P400 (Pascal, 256 CUDA cores, 2GB GDDR5) |
+| GPU | Nvidia Quadro P620 (Pascal, 512 CUDA cores, 2GB GDDR5) |
 | RAM | 8GB DDR4 |
-| Ports | 6× USB-A, 1× USB-C, HDMI, DP, 3× Mini-DP (on P400) |
+| Ports | 6× USB-A, 1× USB-C, HDMI, DP, 4× Mini-DP (on P620) |
 | DuneBox | ✅ 60 FPS |
 | sandcam | ✅ 60 FPS |
-| Water simulation | ⚠️ Works but slow (~10–20 FPS). P400 = ~15% of GTX 1060. |
+| Water simulation | ✅ Solid ~20–35 FPS. P620 = ~30% of GTX 1060. |
 | Linux | ✅ Trivial install, no Optimus issues |
 
 **Why #1**: Only machine that can run ALL software including GPU water sim. Desktop = easy Linux. Plenty of USB ports.
 
-> ⚠️ **PSU note**: The stock 65W PSU is tight with the P400's 30W draw. Upgrade to the 90W PSU option Lenovo offers.
+> ⚠️ **PSU note**: The stock 65W PSU is tight with the P620's 40W draw. Upgrade to the 90W PSU option Lenovo offers.
 
 #### 🥈 Lenovo ThinkCentre M720Q (Intel UHD 630 only)
 
-Same as above but without the Quadro P400. Great for DuneBox and sandcam at 60 FPS. No water simulation (Intel IGP can't handle it).
+Same as above but without the Quadro P620. Great for DuneBox and sandcam at 60 FPS. No water simulation (Intel IGP can't handle it).
 
 #### 🥉 Surface Laptop 2
 
@@ -96,7 +96,7 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 | GPU | CUDA Cores | GFLOPS | Water Sim? |
 |---|---|---|---|
 | GTX 1060 (official minimum) | 1,280 | ~4,095 | ✅ Target spec |
-| **Quadro P400** | **256** | **~614** | **⚠️ Slow but works** |
+| **Quadro P620** | **512** | **~1,386** | **✅ Solid ~20–35 FPS** |
 | Intel UHD 630 | — | ~440 | ❌ Topology only |
 
 ---
@@ -107,5 +107,5 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 |---|---|---|
 | HDMI 2.0, 10–15 ft | PC → projector | No VGA! |
 | Active USB 2.0 extension, 10–15 ft | PC → Kinect at top of frame | Must be active (powered) for reliable data |
-| Mini-DP → HDMI adapter | If using Quadro P400's Mini-DP output | ~$8 |
+| Mini-DP → HDMI adapter | If using Quadro P620's Mini-DP output | ~$8 |
 | Kinect AC adapter | Power for Kinect v1 on PC | Included with Kinect, or ~$10 on eBay |
