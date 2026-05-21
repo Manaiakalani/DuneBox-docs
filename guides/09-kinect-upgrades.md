@@ -1,52 +1,85 @@
-# 09 — Kinect v2 & Azure Kinect DK Upgrades
+# 09 — Depth Sensor Support
 
 ## Overview
 
-DuneBox starts with Kinect v1 (Xbox 360) which has universal support. This guide covers upgrading to Kinect v2 (Xbox One) or Azure Kinect DK as stretch goals.
+DuneBox supports a range of depth sensors across both the C++ and Python applications. Kinect v1 remains the easiest starting point, but all four major sensor families are now fully supported.
 
 ---
 
-## Kinect Comparison
+## Sensor Comparison
 
-| Feature | Kinect v1 (Xbox 360) | Kinect v2 (Xbox One) | Azure Kinect DK |
-|---|---|---|---|
-| Depth resolution | 640×480 | 512×424 | 640×576 (NFOV) |
-| Depth range | 0.4–4.0m | 0.5–4.5m | 0.25–5.46m |
-| Field of view | 57°×43° | 70°×60° | 75°×65° (NFOV) |
-| USB | 2.0 | 3.0 required | 3.0 (USB-C) |
-| PC adapter needed | No | Yes (~$30–80) | No |
-| DuneBox support | ✅ Native | ⚠️ Code mod needed | ⚠️ Experimental |
-| sandcam support | ✅ Native | ❌ Not supported | ❌ Not supported |
-| Price (used) | $20–60 | $60–120 + adapter | $200–400 |
+| Feature | Kinect v1 (Xbox 360) | Kinect v2 (Xbox One) | Azure Kinect DK | Orbbec Femto Bolt |
+|---|---|---|---|---|
+| Depth resolution | 640×480 | 512×424 | 640×576 (NFOV) | 640×576 (NFOV) |
+| Depth range | 0.4–4.0m | 0.5–4.5m | 0.25–5.46m | 0.25–5.46m |
+| Field of view | 57°×43° | 70°×60° | 75°×65° (NFOV) | 75°×65° (NFOV) |
+| USB | 2.0 | 3.0 required | 3.0 (USB-C) | 3.0 (USB-C) |
+| PC adapter needed | No | Yes (~$30–80) | No | No |
+| Price | $20–60 (used) | $60–120 + adapter | $200–400 (used, discontinued) | ~$300 (new) |
+| Status | Legacy, widely available | Legacy, still available | Discontinued (2023) | **Actively manufactured (2024+)** |
+
+### Software Support
+
+| Feature | Kinect v1 | Kinect v2 | Azure Kinect | Orbbec Femto Bolt |
+|---|---|---|---|---|
+| DuneBox (C++) | ✅ Native | ✅ KinectV2Handler | ✅ AzureKinectHandler | ✅ Azure SDK compatible |
+| sandcam (Python) | ✅ Native | ✅ sensor_api.py | ✅ via pyk4a | ✅ via pyorbbecsdk |
 
 ---
 
-## Kinect v2 Upgrade (DuneBox)
+## Sensor Configuration
 
-### What Needs to Change
-DuneBox uses `ofxKinect` (which wraps libfreenect for Kinect v1). For Kinect v2, you need to swap this for a Kinect v2 addon.
+### sandcam (Python)
 
-### Options
+Set the `sensor.type` field in `sandcam-settings.json`:
 
-#### Option A: ofxKinectV2 (Linux/macOS)
-- Uses `libfreenect2` (open-source Kinect v2 driver)
-- Works on Linux and macOS
-- Repo: [ofTheo/ofxKinectV2](https://github.com/ofTheo/ofxKinectV2)
+```json
+{
+  "sensor": {
+    "type": "kinect_v1"
+  }
+}
+```
 
-#### Option B: ofxKinectForWindows2 (Windows only)
-- Uses Microsoft's official Kinect SDK 2.0
-- Windows only
-- Repo: [elliotwoods/ofxKinectForWindows2](https://github.com/elliotwoods/ofxKinectForWindows2)
+Supported values: `"kinect_v1"`, `"kinect_v2"`, `"orbbec"`, `"realsense"`, `"dummy"`
 
-### Code Changes Required
+If no hardware is detected, sandcam **automatically falls back to a mouse simulator** (`"dummy"` mode) so you can develop and test without a physical sensor.
 
-1. Replace `#include "ofxKinect.h"` with the new addon's header
-2. Update `KinectProjector.cpp` to use the new API:
-   - Depth texture accessor may differ
-   - Resolution changes from 640×480 to 512×424
-   - Coordinate system may differ
-3. Update the calibration system for the new field of view
-4. Test depth data scaling (Kinect v2 uses millimeters; v1 uses a 11-bit raw value)
+### DuneBox (C++)
+
+Set `kinectVersion` in the config file:
+
+| Value | Sensor |
+|---|---|
+| `1` | Kinect v1 |
+| `2` | Kinect v2 |
+| `3` | Azure Kinect / Orbbec Femto Bolt |
+
+Like sandcam, DuneBox falls back to a mouse-based depth simulator if no hardware is detected.
+
+---
+
+## Kinect v1 (Xbox 360)
+
+The original and most widely documented sensor for AR sandboxes.
+
+- **DuneBox (C++)**: Native support via `ofxKinect` (wraps libfreenect)
+- **sandcam (Python)**: Native support via libfreenect
+- **No extra installation needed** — drivers are included with both apps
+
+---
+
+## Kinect v2 (Xbox One)
+
+### DuneBox (C++)
+
+Supported via the **KinectV2Handler** class, which wraps either:
+- **ofxKinectV2** (Linux/macOS) — uses `libfreenect2`
+- **ofxKinectForWindows2** (Windows) — uses Microsoft's Kinect SDK 2.0
+
+### sandcam (Python)
+
+Supported via `sensor_api.py`, which provides a unified interface across all sensor types.
 
 ### Hardware Requirements
 - **USB 3.0** port (Kinect v2 won't work on USB 2.0)
@@ -55,19 +88,21 @@ DuneBox uses `ofxKinect` (which wraps libfreenect for Kinect v1). For Kinect v2,
 
 ---
 
-## Azure Kinect DK Upgrade (DuneBox)
+## Azure Kinect DK
 
-### Status: Experimental — No Community Precedent
+### DuneBox (C++)
 
-No AR sandbox project has successfully used the Azure Kinect DK. This would be greenfield work.
+Supported via the **AzureKinectHandler** class using [ofxAzureKinect](https://github.com/prisonerjohn/ofxAzureKinect).
 
-### What Would Be Needed
+### sandcam (Python)
 
-1. **OpenFrameworks addon**: [ofxAzureKinect](https://github.com/prisonerjohn/ofxAzureKinect)
-2. **Azure Kinect SDK** (k4a): [Microsoft/Azure-Kinect-Sensor-SDK](https://github.com/microsoft/Azure-Kinect-Sensor-SDK)
-3. Same code changes as Kinect v2 (swap depth source, update resolution, recalibrate)
+Supported via `pyk4a` (Python bindings for Azure Kinect SDK):
 
-### Advantages of Azure Kinect DK
+```bash
+uv sync --extra azure
+```
+
+### Advantages
 - Higher depth resolution (640×576 NFOV)
 - Better depth accuracy (±2mm vs ±10mm for v1)
 - Wider field of view
@@ -75,28 +110,79 @@ No AR sandbox project has successfully used the Azure Kinect DK. This would be g
 - Better in bright ambient light
 
 ### Disadvantages
-- More expensive ($200–400 used, discontinued by Microsoft in 2023)
+- Discontinued by Microsoft in 2023 — only available used ($200–400)
 - Requires Azure Kinect SDK (additional dependency)
-- No community support for sandbox use
 - SDK is Windows and Linux only (no macOS)
 
 ---
 
-## sandcam Kinect Upgrades
+## Orbbec Femto Bolt
 
-sandcam currently only supports Kinect v1 via libfreenect. Adding Kinect v2 or Azure DK would require:
+The **best long-term Kinect replacement**. The Femto Bolt is Azure Kinect SDK compatible and actively manufactured.
 
-1. Modifying `depth_source.py` to support alternative depth backends
-2. Using `pylibfreenect2` (Python bindings for libfreenect2) for Kinect v2
-3. Using `pyk4a` (Python bindings for Azure Kinect SDK) for Azure DK
-4. Handling the different depth resolutions and coordinate systems
+### Why Femto Bolt?
 
-This is simpler than the C++ changes since Python libraries exist for all three Kinect models.
+- **~$300**, available new from Orbbec
+- **Actively manufactured** (2024+) — not discontinued
+- **Azure Kinect SDK compatible** — works with the same `k4a` API
+- Same depth resolution and field of view as Azure Kinect DK
+- USB-C, no adapter needed
+
+### DuneBox (C++)
+
+Works with the same AzureKinectHandler (set `kinectVersion = 3`) since it's Azure SDK compatible.
+
+### sandcam (Python)
+
+Supported via `pyorbbecsdk` or via the Azure SDK compatibility layer:
+
+```bash
+# Option 1: Native Orbbec SDK
+uv sync --extra orbbec
+
+# Option 2: Azure SDK compatibility
+uv sync --extra azure
+```
+
+---
+
+## Intel RealSense
+
+Supported in sandcam as an alternative depth sensor family.
+
+### Recommended Models
+
+| Model | Type | Best For |
+|---|---|---|
+| **L515** | LiDAR | High accuracy, short range — ideal for sandboxes |
+| **D435** | Stereo | Wider availability, good general-purpose depth |
+
+### sandcam (Python)
+
+Supported via `pyrealsense2`:
+
+```bash
+uv sync --extra realsense
+```
+
+Then set sensor type in `sandcam-settings.json`:
+
+```json
+{
+  "sensor": {
+    "type": "realsense"
+  }
+}
+```
+
+> **Note**: Intel RealSense is not currently supported in the C++ DuneBox app.
 
 ---
 
 ## Recommendation
 
-1. **Start with Kinect v1** — get everything working and calibrated first
-2. **Kinect v2 next** — better FOV, only needs an addon swap in DuneBox
-3. **Azure DK last** — most capable but least supported, save for when everything else works
+1. **New builds** — consider the **Orbbec Femto Bolt** (~$300, best long-term availability)
+2. **Budget builds** — **Kinect v1** ($20–60 used, most documentation available)
+3. **Already own a Kinect v2** — fully supported, just need the USB adapter
+4. **Already own an Azure Kinect** — fully supported in both apps
+5. **Already own a RealSense** — works with sandcam out of the box

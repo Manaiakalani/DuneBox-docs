@@ -113,6 +113,111 @@ The water simulation is the most GPU-intensive part of DuneBox. If FPS drops bel
 
 ---
 
+## Compute Shader Backend (GL 4.3+)
+
+On GPUs that support OpenGL 4.3 or later, DuneBox automatically uses **compute shaders** instead of the fragment shader pipeline. This is detected at startup — if GL 4.3 is unavailable, the original 8-pass fragment shader pipeline is used as a fallback.
+
+### Why Compute Shaders?
+
+Compute shaders replace the 8 fragment passes with **5 compute dispatches**:
+
+| Fragment Pipeline (GL 3.3) | Compute Pipeline (GL 4.3+) |
+|---|---|
+| 1. BathymetryUpdate.frag | 1. BathymetryUpdate.comp |
+| 2. SlopeFluxDeriv.frag | 2. SlopeFluxDeriv.comp *(merged pass)* |
+| 3. EulerStep.frag | 3. EulerStep.comp |
+| 4. SlopeFluxDeriv.frag (repeat) | 4. RungeKuttaStep.comp |
+| 5. RungeKuttaStep.frag | 5. WaterAddUpdate.comp *(merged pass)* |
+| 6. Boundary.frag | |
+| 7. WaterAdd.frag + WaterUpdate.frag | |
+| 8. WaterRender.frag | |
+
+The key optimization is **shared memory** — slope calculation, flux computation, and derivative estimation are merged into a single dispatch because neighboring workgroup threads can share intermediate results via `shared` memory instead of writing to a texture and reading it back.
+
+### Workgroup Layout
+
+All compute shaders use 16×16 workgroups:
+
+```glsl
+layout(local_size_x = 16, local_size_y = 16) in;
+```
+
+This maps well to typical GPU warp/wavefront sizes (256 threads per workgroup).
+
+### In-Place Updates
+
+Compute shaders use `imageLoad()` / `imageStore()` for direct read-write access to textures, eliminating the need for ping-pong FBOs in most passes. Barrier synchronization (`memoryBarrierImage()`) ensures correct ordering.
+
+### Compute Shader Files
+
+Located in `bin/data/shaders/water/compute/`:
+
+| Shader | Purpose |
+|---|---|
+| `BathymetryUpdate.comp` | Syncs terrain with Kinect depth |
+| `SlopeFluxDeriv.comp` | Merged slope + flux + derivative via shared memory |
+| `EulerStep.comp` | RK2 predictor step |
+| `RungeKuttaStep.comp` | RK2 corrector + boundary enforcement |
+| `WaterAddUpdate.comp` | Rain addition + evaporation/damping in one pass |
+
+---
+
+## Lava Simulation
+
+DuneBox supports a **lava mode** that reuses the same shallow-water physics engine with different parameters to simulate viscous lava flow.
+
+### Parameter Differences
+
+| Parameter | Water | Lava |
+|---|---|---|
+| Attenuation | 0.99 (low friction) | 0.85 (viscous, slows quickly) |
+| Opacity | 5.0 | 8.0 (denser, more opaque) |
+| Color | Blue, depth-based transparency | Orange-yellow (shallow) → deep red → black crust (cooling) |
+
+### Controls
+
+- **`l` key** — toggles lava mode on/off
+- Activating lava mode automatically switches the color theme to **Volcanic**
+
+### Dual-Fluid Simulation (Compute Backend Only)
+
+When using the compute shader backend, DuneBox supports **water and lava simultaneously** on the same terrain. The two fluids are tracked in separate texture layers and rendered with distinct colors. Lava meeting water produces steam particle effects.
+
+---
+
+## Configuration — `waterSettings.xml`
+
+Water simulation parameters are stored in an XML settings file that persists across sessions.
+
+### File Location
+
+```
+bin/data/settings/waterSettings.xml
+```
+
+### Parameters
+
+| XML Element | Type | Description |
+|---|---|---|
+| `gravity` | float | Gravitational acceleration (default: 9.81) |
+| `attenuation` | float | Friction/damping factor (default: 0.99) |
+| `theta` | float | Minmod limiter parameter (default: 1.5) |
+| `epsilon` | float | Dry-cell threshold (default: 0.01) |
+| `cellSize` | float | Physical scale factor (default: 1.0) |
+| `waterOpacity` | float | Rendering opacity (default: 5.0) |
+| `fixedDt` | float | Fixed timestep for simulation stability |
+| `maxStepsPerFrame` | int | Cap on simulation steps per render frame |
+| `enabled` | bool | Whether water simulation is active |
+| `lavaMode` | bool | Whether lava mode is active |
+
+### Behavior
+
+- **Loaded at startup** — the app reads this file on launch and applies all values
+- **Saved on exit** — any changes made during a session (via UI or keyboard) are written back
+- **Manual editing** — you can edit this file with a text editor to fine-tune parameters without recompiling; changes take effect on next launch
+
+---
+
 ## Technical Details
 
 For the full shader analysis (uniforms, textures, pipeline), see:
