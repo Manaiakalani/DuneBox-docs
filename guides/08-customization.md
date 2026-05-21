@@ -76,11 +76,11 @@ Place and trigger volcanoes anywhere on the terrain.
 ### Placement
 
 - **`O` key** — places a volcano at the center of the terrain
-- **ArUco marker ID 20** — places a volcano at the marker's position
+- **ArUco marker ID 5** — places a volcano at the marker's position
 
 ### Eruption
 
-- **Click** a placed volcano to trigger eruption, or use **ArUco marker ID 21** to trigger the nearest volcano
+- **Click** a placed volcano to trigger eruption
 
 ### Eruption States
 
@@ -307,8 +307,7 @@ Full table of supported ArUco marker IDs:
 | 11 | Spawn Raptor pack |
 | 12 | Spawn Pteranodon flock |
 | 13 | Extinction event |
-| 20 | Place volcano |
-| 21 | Trigger nearest eruption |
+| 5 | Place volcano |
 
 ### Adding Custom Marker Events
 

@@ -122,7 +122,7 @@ if (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe") {
     Push-Location $DUNEBOX_DIR
     $downloaded = $false
     try {
-        gh release download --pattern "DuneBox-windows-x64.zip" --output $zipFile 2>$null
+        gh release download --pattern "DuneBox-windows-x64.zip" --output $zipFile
         $downloaded = Test-Path $zipFile
     } catch {}
     Pop-Location
@@ -148,7 +148,7 @@ Write-Step 4 "DuneBox-sandcam"
 if (Test-Path "$SANDCAM_DIR\.git") {
     Write-Host "  ✅ sandcam already cloned at $SANDCAM_DIR" -ForegroundColor Green
     Push-Location $SANDCAM_DIR
-    git pull --quiet 2>$null
+    git pull --quiet
     Pop-Location
 } else {
     Write-Host "  📦 Cloning DuneBox-sandcam..." -ForegroundColor Yellow
@@ -158,10 +158,10 @@ if (Test-Path "$SANDCAM_DIR\.git") {
 Write-Host "  📦 Installing Python dependencies..." -ForegroundColor Yellow
 Push-Location $SANDCAM_DIR
 if (Test-Command "uv") {
-    uv sync 2>$null
+    uv sync
     Write-Host "  ✅ Dependencies installed" -ForegroundColor Green
 } else {
-    python -m pip install -r requirements.txt 2>$null
+    python -m pip install -r requirements.txt
     Write-Host "  ✅ Dependencies installed (pip)" -ForegroundColor Green
 }
 Pop-Location

@@ -181,7 +181,7 @@ Water simulation parameters are now configured via **`data/waterSettings.xml`** 
 | `epsilon` | 0.01 | Prevents division by zero in dry areas |
 | `cellSize` | 1.0 | Physical scale — tune to match your Kinect depth range |
 
-The file is located at `DuneBox/data/waterSettings.xml` and is loaded at startup.
+The file is located at `bin/data/settings/waterSettings.xml` and is loaded at startup.
 
 ---
 
