@@ -8,6 +8,23 @@ DuneBox is the primary AR sandbox application. It runs on Windows, macOS, or Lin
 
 ---
 
+## Features
+
+DuneBox now includes:
+
+- **GPU water simulation** — fragment shader and compute shader backends
+- **Lava simulation mode** — auto-switches to Volcanic theme
+- **5 color themes** — Topo, Ocean, Volcanic, Ice Age, Alien (cycle with `t`)
+- **Day/night cycle** — animated lighting with sun/moon transitions
+- **Volcano eruption** — manual trigger at center of sandbox
+- **Startup diagnostics** — GPU, Kinect, and shader checks on launch
+- **Inter-app bridge** — WebSocket link to DuneBox-sandcam
+- **Kinect v1/v2/Azure Kinect** — all three sensor generations supported
+- **XML-configurable water** — tune water physics via `data/waterSettings.xml`
+- **Map & boid games** — interactive educational game modes
+
+---
+
 ## Option A: Pre-Built Release (Recommended — no coding needed)
 
 On Windows, just run the setup script or double-click `run.bat`:
@@ -154,7 +171,7 @@ When enabled:
 
 ### Tuning Parameters
 
-Edit these in `src/WaterSimulation/WaterSimulation.h` (will be moved to a config file later):
+Water simulation parameters are now configured via **`data/waterSettings.xml`** (no recompilation needed). Edit the XML file to adjust:
 
 | Parameter | Default | What it does |
 |---|---|---|
@@ -164,6 +181,8 @@ Edit these in `src/WaterSimulation/WaterSimulation.h` (will be moved to a config
 | `epsilon` | 0.01 | Prevents division by zero in dry areas |
 | `cellSize` | 1.0 | Physical scale — tune to match your Kinect depth range |
 
+The file is located at `DuneBox/data/waterSettings.xml` and is loaded at startup.
+
 ---
 
 ## Keyboard Controls
@@ -171,9 +190,18 @@ Edit these in `src/WaterSimulation/WaterSimulation.h` (will be moved to a config
 | Key | Action |
 |---|---|
 | `w` | Toggle water simulation |
-| `c` | Start auto-calibration |
-| `space` | Pause/resume |
-| `1-5` | Switch between sandbox games |
+| `l` | Toggle lava mode (auto-switches to Volcanic theme) |
+| `t` | Cycle color themes (Topo → Ocean → Volcanic → Ice → Alien) |
+| `T` | Run real-time test |
+| `n` | Toggle day/night cycle |
+| `v` | Manual volcano eruption at center |
+| `b` | Send ping via inter-app bridge |
+| `space` | Start/advance map game |
+| `f` / `r` | Start fish game / end map game |
+| `1`–`4` | Start boid game difficulty 0–3 |
+| `m` | Start seek mother game |
+| `c` | Save Kinect color image |
+| `d` | Save filtered depth image |
 
 ---
 

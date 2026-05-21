@@ -48,6 +48,7 @@ Write-Host @"
   ╔══════════════════════════════════════════════════════════╗
   ║           🏜️  DuneBox Setup (Windows)  🏜️               ║
   ║                                                          ║
+  ║  18 new features across both apps!                       ║
   ║  No Visual Studio needed — downloads pre-built app.      ║
   ║  Takes about 5 minutes.                                  ║
   ╚══════════════════════════════════════════════════════════╝
@@ -236,7 +237,18 @@ Write-Host @"
                   or: cd $SANDCAM_DIR && .\run.bat
 
   Both work without a Kinect (test/simulator modes).
-  Press 'w' in DuneBox to toggle the water simulation.
+
+  DuneBox (C++) keybindings:
+  ─────────────────────────────────────────────────────────
+  w  Water simulation    l  Lava mode       t  Cycle themes
+  n  Day/night cycle     v  Volcano erupt   space  Start game
+
+  DuneBox-sandcam (Python) keybindings:
+  ─────────────────────────────────────────────────────────
+  C  Contour lines    G  Creatures     V  Creature set cycle
+  D  DEM overlay      E  Ecosystem     N  Day/night cycle
+  S  Sound mute       O  Volcano       K  Earthquake
+  U  WebSocket        B  Bridge        F1-F4  Game modes
 
   Full guide: https://github.com/$REPO_OWNER/DuneBox-docs
 
