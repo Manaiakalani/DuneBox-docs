@@ -1,23 +1,19 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    DuneBox Windows Setup Script
-    Installs everything needed to build and run DuneBox + DuneBox-sandcam on Windows.
+    DuneBox Windows Setup — downloads and installs both sandbox apps.
 
 .DESCRIPTION
-    Targets: Lenovo ThinkCentre M720Q + Quadro P620 (or any Windows 10/11 PC with Nvidia GPU)
+    Targets: Any Windows 10/11 PC with Nvidia GPU (tested on M720Q + Quadro P620)
     
-    Installs:
-      - Git
-      - Nvidia GPU drivers (prompts to download)
-      - Visual Studio 2022 Build Tools (C++ workload)
-      - Python 3.12 + uv
-      - OpenFrameworks 0.12.0
-      - DuneBox (C++ AR sandbox) + addons
-      - DuneBox-sandcam (Python AR sandbox)
-      - Kinect for Windows SDK v1.8
+    What this does (5 minutes):
+      1. Installs Git + GitHub CLI (via winget)
+      2. Installs Python 3.12 + uv (for sandcam)
+      3. Downloads pre-built DuneBox release (no Visual Studio needed!)
+      4. Clones DuneBox-sandcam + installs Python dependencies
+      5. Checks Nvidia GPU driver status
 
-    Run from an elevated PowerShell:
+    Run from elevated PowerShell:
       Set-ExecutionPolicy Bypass -Scope Process -Force
       .\setup-windows.ps1
 
@@ -29,14 +25,12 @@
 $ErrorActionPreference = "Stop"
 
 # ── Configuration ──────────────────────────────────────────────────────────────
-$OF_VERSION    = "0.12.0"
-$OF_URL        = "https://github.com/openframeworks/openFrameworks/releases/download/${OF_VERSION}/of_v${OF_VERSION}_vs_release.zip"
-$OF_ROOT       = "C:\openFrameworks"
-$DUNEBOX_DIR   = "$OF_ROOT\apps\myApps\DuneBox"
-$SANDCAM_DIR   = "$HOME\Projects\DuneBox-sandcam"
-$KINECT_SDK_URL = "https://www.microsoft.com/en-us/download/details.aspx?id=40278"
+$INSTALL_DIR   = "$HOME\DuneBox"
+$DUNEBOX_DIR   = "$INSTALL_DIR\DuneBox"
+$SANDCAM_DIR   = "$INSTALL_DIR\DuneBox-sandcam"
+$REPO_OWNER    = "Manaiakalani"
 
-# ── Helper functions ───────────────────────────────────────────────────────────
+# ── Helpers ────────────────────────────────────────────────────────────────────
 function Write-Step($num, $msg) {
     Write-Host "`n" -NoNewline
     Write-Host "[$num] " -ForegroundColor Cyan -NoNewline
@@ -48,304 +42,202 @@ function Test-Command($cmd) {
     return [bool](Get-Command $cmd -ErrorAction SilentlyContinue)
 }
 
-function Install-WingetPackage($id, $name) {
-    if (winget list --id $id 2>$null | Select-String $id) {
-        Write-Host "  ✅ $name already installed" -ForegroundColor Green
-    } else {
-        Write-Host "  📦 Installing $name..." -ForegroundColor Yellow
-        winget install --id $id --accept-source-agreements --accept-package-agreements
-    }
-}
-
-# ── Pre-flight checks ─────────────────────────────────────────────────────────
+# ── Banner ─────────────────────────────────────────────────────────────────────
 Write-Host @"
 
   ╔══════════════════════════════════════════════════════════╗
-  ║           🏜️  DuneBox Windows Setup Script  🏜️          ║
+  ║           🏜️  DuneBox Setup (Windows)  🏜️               ║
   ║                                                          ║
-  ║  This script installs everything you need to build       ║
-  ║  and run DuneBox on Windows 10/11.                       ║
+  ║  No Visual Studio needed — downloads pre-built app.      ║
+  ║  Takes about 5 minutes.                                  ║
   ╚══════════════════════════════════════════════════════════╝
 
 "@ -ForegroundColor Cyan
 
 if (-not (Test-Command "winget")) {
-    Write-Host "❌ winget not found. Please install App Installer from the Microsoft Store." -ForegroundColor Red
+    Write-Host "❌ winget not found. Install App Installer from Microsoft Store." -ForegroundColor Red
     exit 1
 }
 
-# ── Step 1: Git ────────────────────────────────────────────────────────────────
-Write-Step 1 "Git"
+# Create install directory
+if (-not (Test-Path $INSTALL_DIR)) {
+    New-Item -Path $INSTALL_DIR -ItemType Directory -Force | Out-Null
+}
+
+# ── Step 1: Git + GitHub CLI ───────────────────────────────────────────────────
+Write-Step 1 "Git + GitHub CLI"
 
 if (Test-Command "git") {
-    $gitVer = git --version
-    Write-Host "  ✅ $gitVer" -ForegroundColor Green
+    Write-Host "  ✅ Git installed" -ForegroundColor Green
 } else {
-    Install-WingetPackage "Git.Git" "Git"
+    Write-Host "  📦 Installing Git..." -ForegroundColor Yellow
+    winget install --id Git.Git --accept-source-agreements --accept-package-agreements
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
 
-# ── Step 2: Nvidia GPU Driver ──────────────────────────────────────────────────
-Write-Step 2 "Nvidia GPU Driver"
-
-$gpu = Get-CimInstance -ClassName Win32_VideoController | Where-Object { $_.Name -like "*NVIDIA*" -or $_.Name -like "*Quadro*" }
-if ($gpu) {
-    Write-Host "  ✅ GPU detected: $($gpu.Name)" -ForegroundColor Green
-    Write-Host "  Driver version: $($gpu.DriverVersion)" -ForegroundColor Gray
-    
-    $nvidiaDriverInstalled = $gpu.DriverVersion -ne $null
-    if (-not $nvidiaDriverInstalled) {
-        Write-Host "  ⚠️  No driver detected. Download from:" -ForegroundColor Yellow
-        Write-Host "     https://www.nvidia.com/Download/index.aspx" -ForegroundColor White
-        Write-Host "     Select: Quadro → Quadro P-Series → Quadro P620 → Windows 10/11 64-bit" -ForegroundColor Gray
-    }
+if (Test-Command "gh") {
+    Write-Host "  ✅ GitHub CLI installed" -ForegroundColor Green
 } else {
-    Write-Host "  ⚠️  No Nvidia GPU detected. Water simulation requires Nvidia GPU." -ForegroundColor Yellow
-    Write-Host "     DuneBox will still work without water sim." -ForegroundColor Gray
+    Write-Host "  📦 Installing GitHub CLI..." -ForegroundColor Yellow
+    winget install --id GitHub.cli --accept-source-agreements --accept-package-agreements
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
 
-# ── Step 3: Visual Studio 2022 Build Tools ─────────────────────────────────────
-Write-Step 3 "Visual Studio 2022 Build Tools (C++ workload)"
-
-$vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-$vsInstalled = $false
-
-if (Test-Path $vsWhere) {
-    $vsPath = & $vsWhere -latest -property installationPath 2>$null
-    if ($vsPath) {
-        Write-Host "  ✅ Visual Studio found at: $vsPath" -ForegroundColor Green
-        $vsInstalled = $true
-    }
-}
-
-if (-not $vsInstalled) {
-    Write-Host "  📦 Installing Visual Studio 2022 Build Tools..." -ForegroundColor Yellow
-    Write-Host "     This will take 10-30 minutes." -ForegroundColor Gray
-    
-    winget install --id Microsoft.VisualStudio.2022.BuildTools `
-        --override "--add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22621 --passive --wait" `
-        --accept-source-agreements --accept-package-agreements
-    
-    Write-Host "  ✅ Build Tools installed" -ForegroundColor Green
-}
-
-# ── Step 4: Python ─────────────────────────────────────────────────────────────
-Write-Step 4 "Python 3.12+"
+# ── Step 2: Python + uv ───────────────────────────────────────────────────────
+Write-Step 2 "Python + uv"
 
 if (Test-Command "python") {
     $pyVer = python --version 2>&1
     Write-Host "  ✅ $pyVer" -ForegroundColor Green
 } else {
-    Install-WingetPackage "Python.Python.3.12" "Python 3.12"
+    Write-Host "  📦 Installing Python 3.12..." -ForegroundColor Yellow
+    winget install --id Python.Python.3.12 --accept-source-agreements --accept-package-agreements
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 }
 
-# Install uv (fast Python package manager)
 if (Test-Command "uv") {
-    Write-Host "  ✅ uv already installed" -ForegroundColor Green
+    Write-Host "  ✅ uv installed" -ForegroundColor Green
 } else {
     Write-Host "  📦 Installing uv..." -ForegroundColor Yellow
     irm https://astral.sh/uv/install.ps1 | iex
 }
 
-# ── Step 5: OpenFrameworks ─────────────────────────────────────────────────────
-Write-Step 5 "OpenFrameworks $OF_VERSION"
+# ── Step 3: DuneBox (pre-built) ───────────────────────────────────────────────
+Write-Step 3 "DuneBox (pre-built release)"
 
-if (Test-Path "$OF_ROOT\libs\openFrameworksCompiled") {
-    Write-Host "  ✅ OpenFrameworks found at $OF_ROOT" -ForegroundColor Green
+if (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe") {
+    Write-Host "  ✅ DuneBox already installed at $DUNEBOX_DIR" -ForegroundColor Green
 } else {
-    Write-Host "  📦 Downloading OpenFrameworks $OF_VERSION..." -ForegroundColor Yellow
-    
-    $ofZip = "$env:TEMP\openframeworks.zip"
-    
-    if (-not (Test-Path $ofZip)) {
-        Invoke-WebRequest -Uri $OF_URL -OutFile $ofZip -UseBasicParsing
+    # Clone repo (for shaders, data files, config)
+    if (-not (Test-Path "$DUNEBOX_DIR\.git")) {
+        Write-Host "  📦 Cloning DuneBox repo..." -ForegroundColor Yellow
+        git clone "https://github.com/$REPO_OWNER/DuneBox.git" $DUNEBOX_DIR --quiet
     }
-    
-    Write-Host "  📂 Extracting to $OF_ROOT..." -ForegroundColor Yellow
-    
-    $tempExtract = "$env:TEMP\of_extract"
-    if (Test-Path $tempExtract) { Remove-Item $tempExtract -Recurse -Force }
-    Expand-Archive -Path $ofZip -DestinationPath $tempExtract -Force
-    
-    $extractedDir = Get-ChildItem $tempExtract -Directory | Select-Object -First 1
-    
-    if (-not (Test-Path $OF_ROOT)) { New-Item -Path $OF_ROOT -ItemType Directory | Out-Null }
-    
-    Get-ChildItem $extractedDir.FullName | Move-Item -Destination $OF_ROOT -Force
-    
-    Remove-Item $tempExtract -Recurse -Force
-    Remove-Item $ofZip -Force
-    
-    Write-Host "  ✅ OpenFrameworks extracted to $OF_ROOT" -ForegroundColor Green
-}
 
-$myApps = "$OF_ROOT\apps\myApps"
-if (-not (Test-Path $myApps)) {
-    New-Item -Path $myApps -ItemType Directory -Force | Out-Null
-}
+    # Download pre-built release
+    Write-Host "  📦 Downloading latest pre-built release..." -ForegroundColor Yellow
+    $zipFile = "$env:TEMP\DuneBox-windows-x64.zip"
 
-# ── Step 6: Clone DuneBox ─────────────────────────────────────────────────────
-Write-Step 6 "Clone DuneBox"
-
-if (Test-Path "$DUNEBOX_DIR\.git") {
-    Write-Host "  ✅ DuneBox already cloned at $DUNEBOX_DIR" -ForegroundColor Green
     Push-Location $DUNEBOX_DIR
-    git pull --quiet 2>$null
+    $downloaded = $false
+    try {
+        gh release download --pattern "DuneBox-windows-x64.zip" --output $zipFile 2>$null
+        $downloaded = Test-Path $zipFile
+    } catch {}
     Pop-Location
-} else {
-    Write-Host "  📦 Cloning DuneBox..." -ForegroundColor Yellow
-    git clone https://github.com/Manaiakalani/DuneBox.git $DUNEBOX_DIR
-}
 
-Push-Location $DUNEBOX_DIR
-git config user.name "Manaiakalani"
-git config user.email "1502119+Manaiakalani@users.noreply.github.com"
-Pop-Location
-
-# ── Step 7: Install OpenFrameworks Addons ──────────────────────────────────────
-Write-Step 7 "OpenFrameworks Addons"
-
-$addonsDir = "$OF_ROOT\addons"
-$addons = @(
-    @{ Name = "ofxCv";        Url = "https://github.com/kylemcdonald/ofxCv" },
-    @{ Name = "ofxDatGui";    Url = "https://github.com/braitsch/ofxDatGui" },
-    @{ Name = "ofxParagraph"; Url = "https://github.com/braitsch/ofxParagraph" },
-    @{ Name = "ofxModal";     Url = "https://github.com/braitsch/ofxModal" }
-)
-
-foreach ($addon in $addons) {
-    $addonPath = Join-Path $addonsDir $addon.Name
-    if (Test-Path "$addonPath\.git") {
-        Write-Host "  ✅ $($addon.Name) already installed" -ForegroundColor Green
+    if ($downloaded) {
+        if (-not (Test-Path "$DUNEBOX_DIR\bin")) {
+            New-Item "$DUNEBOX_DIR\bin" -ItemType Directory | Out-Null
+        }
+        Expand-Archive -Path $zipFile -DestinationPath "$DUNEBOX_DIR\bin" -Force
+        Remove-Item $zipFile
+        Write-Host "  ✅ DuneBox installed" -ForegroundColor Green
     } else {
-        Write-Host "  📦 Cloning $($addon.Name)..." -ForegroundColor Yellow
-        git clone $addon.Url $addonPath --quiet
+        Write-Host "  ⚠️  No release build available yet." -ForegroundColor Yellow
+        Write-Host "     The CI pipeline will build it on the next push." -ForegroundColor Gray
+        Write-Host "     To trigger: git tag v0.1.0 && git push origin v0.1.0" -ForegroundColor Gray
+        Write-Host "     Or just double-click run.bat — it auto-downloads when ready." -ForegroundColor Gray
     }
 }
 
-$bundled = @("ofxKinect", "ofxOpenCv", "ofxXmlSettings")
-foreach ($b in $bundled) {
-    if (Test-Path "$addonsDir\$b") {
-        Write-Host "  ✅ $b (bundled)" -ForegroundColor Green
-    } else {
-        Write-Host "  ⚠️  $b not found — may need OF reinstall" -ForegroundColor Yellow
-    }
-}
-
-# ── Step 8: Clone DuneBox-sandcam ─────────────────────────────────────────────
-Write-Step 8 "Clone DuneBox-sandcam"
+# ── Step 4: DuneBox-sandcam ───────────────────────────────────────────────────
+Write-Step 4 "DuneBox-sandcam"
 
 if (Test-Path "$SANDCAM_DIR\.git") {
-    Write-Host "  ✅ DuneBox-sandcam already cloned at $SANDCAM_DIR" -ForegroundColor Green
+    Write-Host "  ✅ sandcam already cloned at $SANDCAM_DIR" -ForegroundColor Green
     Push-Location $SANDCAM_DIR
     git pull --quiet 2>$null
     Pop-Location
 } else {
     Write-Host "  📦 Cloning DuneBox-sandcam..." -ForegroundColor Yellow
-    if (-not (Test-Path "$HOME\Projects")) { New-Item -Path "$HOME\Projects" -ItemType Directory | Out-Null }
-    git clone https://github.com/Manaiakalani/DuneBox-sandcam.git $SANDCAM_DIR
+    git clone "https://github.com/$REPO_OWNER/DuneBox-sandcam.git" $SANDCAM_DIR --quiet
 }
 
-Push-Location $SANDCAM_DIR
-git config user.name "Manaiakalani"
-git config user.email "1502119+Manaiakalani@users.noreply.github.com"
-Pop-Location
-
-Write-Host "  📦 Installing sandcam Python dependencies..." -ForegroundColor Yellow
+Write-Host "  📦 Installing Python dependencies..." -ForegroundColor Yellow
 Push-Location $SANDCAM_DIR
 if (Test-Command "uv") {
     uv sync 2>$null
-    Write-Host "  ✅ Python dependencies installed via uv" -ForegroundColor Green
+    Write-Host "  ✅ Dependencies installed" -ForegroundColor Green
 } else {
     python -m pip install -r requirements.txt 2>$null
-    Write-Host "  ✅ Python dependencies installed via pip" -ForegroundColor Green
+    Write-Host "  ✅ Dependencies installed (pip)" -ForegroundColor Green
 }
 Pop-Location
 
-# ── Step 9: Kinect SDK ─────────────────────────────────────────────────────────
-Write-Step 9 "Kinect for Windows SDK"
+# ── Step 5: GPU check ─────────────────────────────────────────────────────────
+Write-Step 5 "Nvidia GPU"
 
-$kinectV1Sdk = "${env:ProgramFiles}\Microsoft SDKs\Kinect\v1.8"
-$kinectV2Sdk = "${env:ProgramFiles}\Microsoft SDKs\Kinect\v2.0_1409"
-
-Write-Host "  Kinect v1 SDK: " -NoNewline
-if (Test-Path $kinectV1Sdk) {
-    Write-Host "✅ Installed" -ForegroundColor Green
+$gpu = Get-CimInstance -ClassName Win32_VideoController | Where-Object { $_.Name -like "*NVIDIA*" -or $_.Name -like "*Quadro*" }
+if ($gpu) {
+    Write-Host "  ✅ $($gpu.Name)" -ForegroundColor Green
+    Write-Host "     Driver: $($gpu.DriverVersion)" -ForegroundColor Gray
 } else {
-    Write-Host "❌ Not found" -ForegroundColor Yellow
-    Write-Host "     Download Kinect for Windows SDK v1.8 from:" -ForegroundColor Gray
-    Write-Host "     $KINECT_SDK_URL" -ForegroundColor White
-    Write-Host "     (ofxKinect uses libfreenect — SDK not strictly required," -ForegroundColor Gray
-    Write-Host "      but provides useful diagnostic tools)" -ForegroundColor Gray
+    Write-Host "  ⚠️  No Nvidia GPU detected." -ForegroundColor Yellow
+    Write-Host "     Water simulation requires Nvidia GPU." -ForegroundColor Gray
+    Write-Host "     DuneBox topo maps + sandcam will still work fine." -ForegroundColor Gray
 }
 
-Write-Host "  Kinect v2 SDK: " -NoNewline
-if (Test-Path $kinectV2Sdk) {
-    Write-Host "✅ Installed" -ForegroundColor Green
-} else {
-    Write-Host "⏭️  Not needed yet (stretch goal)" -ForegroundColor Gray
-}
-
-# ── Step 10: Verify ───────────────────────────────────────────────────────────
-Write-Step 10 "Verification Summary"
+# ── Step 6: Verify ────────────────────────────────────────────────────────────
+Write-Step 6 "Summary"
 
 $checks = @(
-    @{ Name = "Git";           OK = (Test-Command "git") },
-    @{ Name = "Python";        OK = (Test-Command "python") },
-    @{ Name = "uv";            OK = (Test-Command "uv") },
-    @{ Name = "OpenFrameworks"; OK = (Test-Path "$OF_ROOT\libs\openFrameworksCompiled") },
-    @{ Name = "DuneBox clone"; OK = (Test-Path "$DUNEBOX_DIR\.git") },
-    @{ Name = "sandcam clone"; OK = (Test-Path "$SANDCAM_DIR\.git") },
-    @{ Name = "ofxCv addon";   OK = (Test-Path "$addonsDir\ofxCv\.git") },
-    @{ Name = "ofxDatGui";     OK = (Test-Path "$addonsDir\ofxDatGui\.git") },
-    @{ Name = "Nvidia GPU";    OK = ($gpu -ne $null) }
+    @{ Name = "Git";             OK = (Test-Command "git") },
+    @{ Name = "GitHub CLI";      OK = (Test-Command "gh") },
+    @{ Name = "Python";          OK = (Test-Command "python") },
+    @{ Name = "uv";              OK = (Test-Command "uv") },
+    @{ Name = "DuneBox repo";    OK = (Test-Path "$DUNEBOX_DIR\.git") },
+    @{ Name = "DuneBox exe";     OK = (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe") },
+    @{ Name = "sandcam repo";    OK = (Test-Path "$SANDCAM_DIR\.git") },
+    @{ Name = "Nvidia GPU";      OK = ($gpu -ne $null) }
 )
 
 $allGood = $true
 foreach ($c in $checks) {
-    $icon = if ($c.OK) { "✅" } else { "❌"; $allGood = $false }
+    $icon = if ($c.OK) { "✅" } else { "⬜"; $allGood = $false }
     Write-Host "  $icon $($c.Name)"
 }
 
 Write-Host ""
-if ($allGood) {
-    Write-Host @"
-  ╔══════════════════════════════════════════════════════════╗
-  ║          ✅  All checks passed! You're ready.           ║
-  ╚══════════════════════════════════════════════════════════╝
-"@ -ForegroundColor Green
-} else {
-    Write-Host @"
-  ╔══════════════════════════════════════════════════════════╗
-  ║      ⚠️  Some items need attention (see ❌ above).      ║
-  ╚══════════════════════════════════════════════════════════╝
-"@ -ForegroundColor Yellow
-}
+
+# ── Desktop shortcuts ──────────────────────────────────────────────────────────
+$desktop = [System.Environment]::GetFolderPath("Desktop")
+
+# DuneBox shortcut
+$ws = New-Object -ComObject WScript.Shell
+$sc = $ws.CreateShortcut("$desktop\DuneBox.lnk")
+$sc.TargetPath = "$DUNEBOX_DIR\run.bat"
+$sc.WorkingDirectory = $DUNEBOX_DIR
+$sc.Description = "DuneBox AR Sandbox"
+if (Test-Path "$DUNEBOX_DIR\icon.ico") { $sc.IconLocation = "$DUNEBOX_DIR\icon.ico" }
+$sc.Save()
+
+# sandcam shortcut
+$sc2 = $ws.CreateShortcut("$desktop\DuneBox-sandcam.lnk")
+$sc2.TargetPath = "$SANDCAM_DIR\run.bat"
+$sc2.WorkingDirectory = $SANDCAM_DIR
+$sc2.Description = "DuneBox sandcam (Python)"
+$sc2.Save()
+
+Write-Host "  🖥️  Desktop shortcuts created!" -ForegroundColor Green
 
 Write-Host @"
 
-  Next steps:
+  ╔══════════════════════════════════════════════════════════╗
+  ║                    ✅  Setup Complete!                   ║
+  ╚══════════════════════════════════════════════════════════╝
+
+  To run:
   ─────────────────────────────────────────────────────────
-  1. Open Visual Studio → File → Open → Project/Solution
-     → $DUNEBOX_DIR\Magic-Sand.sln
+  🏜️  DuneBox:   Double-click "DuneBox" on your desktop
+                  or: cd $DUNEBOX_DIR && .\run.bat
 
-  2. Add WaterSimulation files to the project:
-     Right-click src → Add Existing Item →
-       src\WaterSimulation\WaterSimulation.h
-       src\WaterSimulation\WaterSimulation.cpp
+  🐍  sandcam:   Double-click "DuneBox-sandcam" on your desktop
+                  or: cd $SANDCAM_DIR && .\run.bat
 
-  3. Set configuration to x64 Release → Build (Ctrl+Shift+B)
+  Both work without a Kinect (test/simulator modes).
+  Press 'w' in DuneBox to toggle the water simulation.
 
-  4. Run (F5) — no Kinect needed, it has a test terrain fallback
-
-  5. Press 'w' to toggle the water simulation
-
-  For sandcam (quick test):
-     cd $SANDCAM_DIR
-     uv run python main.py
-     (works immediately — mouse simulator mode, no hardware needed)
-
-  Full guide: https://github.com/Manaiakalani/DuneBox-docs
+  Full guide: https://github.com/$REPO_OWNER/DuneBox-docs
 
 "@ -ForegroundColor Cyan

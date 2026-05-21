@@ -8,9 +8,9 @@ DuneBox is the primary AR sandbox application. It runs on Windows, macOS, or Lin
 
 ---
 
-## Automated Setup (Recommended)
+## Option A: Pre-Built Release (Recommended — no coding needed)
 
-On Windows, the setup script handles everything below automatically:
+On Windows, just run the setup script or double-click `run.bat`:
 
 ```powershell
 # Run from elevated PowerShell on your sandbox PC
@@ -18,11 +18,17 @@ cd DuneBox-docs\scripts
 .\setup-windows.ps1
 ```
 
-See [`scripts/setup-windows.ps1`](../scripts/setup-windows.ps1) for details. The rest of this guide covers manual setup.
+The script downloads the pre-built `.exe`, installs dependencies, and creates a desktop shortcut. **No Visual Studio or build tools needed.**
+
+Or clone the repo and double-click `run.bat` — it auto-downloads the latest release.
 
 ---
 
-## Prerequisites
+## Option B: Build from Source (for developers)
+
+Only needed if you want to modify the C++ code.
+
+### Prerequisites
 
 | Dependency | Version | Purpose |
 |---|---|---|

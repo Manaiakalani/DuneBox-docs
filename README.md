@@ -14,7 +14,7 @@ This repo contains the complete build guide for DuneBox — a home-built augment
 
 ## ⚡ Quick Start (Windows)
 
-Run this in an **elevated PowerShell** on your sandbox PC to install everything automatically:
+Run this in an **elevated PowerShell** on your sandbox PC:
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -23,7 +23,12 @@ cd DuneBox-docs\scripts
 .\setup-windows.ps1
 ```
 
-This installs Git, Visual Studio Build Tools, Python, OpenFrameworks, clones both DuneBox repos, and installs all addons + dependencies. Takes ~30 minutes on a fresh Windows install.
+**That's it.** The script:
+- Downloads pre-built DuneBox (no Visual Studio / compile step!)
+- Installs Python + sandcam dependencies
+- Creates desktop shortcuts for both apps
+
+Takes ~5 minutes. Both apps work without a Kinect (test/simulator modes).
 
 ## Guides
 
