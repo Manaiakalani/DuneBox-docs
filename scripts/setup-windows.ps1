@@ -1,255 +1,291 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    DuneBox Windows Setup — downloads and installs both sandbox apps.
+    DuneBox one-shot Windows installer — preps, installs, and launches both apps.
 
 .DESCRIPTION
-    Targets: Any Windows 10/11 PC with Nvidia GPU (tested on M720Q + Quadro P620)
-    
-    What this does (5 minutes):
-      1. Installs Git + GitHub CLI (via winget)
-      2. Installs Python 3.12 + uv (for sandcam)
-      3. Downloads pre-built DuneBox release (no Visual Studio needed!)
-      4. Clones DuneBox-sandcam + installs Python dependencies
-      5. Checks Nvidia GPU driver status
+    Targets any Windows 10/11 PC with an Nvidia GPU (tested on the Lenovo
+    ThinkCentre M720Q + Quadro P620). Designed to run unattended: every step
+    is non-interactive except a single one-time GitHub sign-in (only needed
+    because the repos are private — skipped entirely if a token is supplied).
 
-    Run from elevated PowerShell:
-      Set-ExecutionPolicy Bypass -Scope Process -Force
-      .\setup-windows.ps1
+    What it does (~5 min):
+      1. Installs Git, GitHub CLI, Python 3.12, and uv (via winget, silent)
+      2. Authenticates GitHub (token if provided, else one browser sign-in)
+      3. Clones DuneBox + DuneBox-sandcam
+      4. Installs sandcam's Python dependencies (uv sync)
+      5. Fetches the pre-built DuneBox app (release → CI artifact → triggers a
+         build and waits, in that order) so no Visual Studio is ever needed
+      6. Checks the Nvidia driver and creates desktop shortcuts
+      7. Optionally launches sandcam right away (-Launch)
+
+.PARAMETER Launch
+    Start DuneBox-sandcam automatically once setup finishes.
+
+.PARAMETER NoBuildWait
+    Don't trigger/wait for a cloud build if no DuneBox binary exists yet.
+    sandcam still installs fully; DuneBox can be fetched later via run.bat.
+
+.PARAMETER Token
+    A GitHub PAT (repo + read:packages scope). When set, sign-in is fully
+    non-interactive. Falls back to $env:GH_TOKEN / $env:GITHUB_TOKEN.
+
+.EXAMPLE
+    # Fully unattended on a box that already has a token in the environment:
+    $env:GH_TOKEN = "ghp_xxx"; .\setup-windows.ps1 -Launch
+
+.EXAMPLE
+    # Normal use — one browser sign-in, everything else automatic:
+    .\setup-windows.ps1 -Launch
 
 .NOTES
     Author: Manaiakalani (https://github.com/Manaiakalani)
     Project: DuneBox — https://github.com/Manaiakalani/DuneBox-docs
 #>
+[CmdletBinding()]
+param(
+    [switch]$Launch,
+    [switch]$NoBuildWait,
+    [string]$Token
+)
 
 $ErrorActionPreference = "Stop"
+$ProgressPreference    = "SilentlyContinue"   # faster, quieter downloads
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 $INSTALL_DIR   = "$HOME\DuneBox"
 $DUNEBOX_DIR   = "$INSTALL_DIR\DuneBox"
 $SANDCAM_DIR   = "$INSTALL_DIR\DuneBox-sandcam"
 $REPO_OWNER    = "Manaiakalani"
+$WORKFLOW_NAME = "Build & Release"
+$ARTIFACT_NAME = "DuneBox-windows-x64"
+$WINGET_ARGS   = @(
+    "--silent", "--accept-source-agreements", "--accept-package-agreements",
+    "--disable-interactivity"
+)
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 function Write-Step($num, $msg) {
-    Write-Host "`n" -NoNewline
-    Write-Host "[$num] " -ForegroundColor Cyan -NoNewline
+    Write-Host "`n[$num] " -ForegroundColor Cyan -NoNewline
     Write-Host $msg -ForegroundColor White
-    Write-Host ("─" * 60) -ForegroundColor DarkGray
+    Write-Host ("-" * 60) -ForegroundColor DarkGray
 }
-
-function Test-Command($cmd) {
-    return [bool](Get-Command $cmd -ErrorAction SilentlyContinue)
+function Test-Command($cmd) { [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
+function Sync-Path {
+    # Re-read PATH (machine + user) so freshly-installed tools resolve in-session.
+    $machine = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+    $user    = [System.Environment]::GetEnvironmentVariable("Path", "User")
+    $env:Path = ($machine, $user, "$HOME\.local\bin",
+                 "$env:LocalAppData\Programs\Python\Python312",
+                 "$env:LocalAppData\Programs\Python\Python312\Scripts",
+                 "$env:ProgramFiles\GitHub CLI") -join ";"
+}
+function Install-IfMissing($cmd, $wingetId, $label) {
+    if (Test-Command $cmd) {
+        Write-Host "  [ok] $label already installed" -ForegroundColor Green
+        return
+    }
+    Write-Host "  [..] Installing $label..." -ForegroundColor Yellow
+    winget install --id $wingetId -e @WINGET_ARGS | Out-Null
+    Sync-Path
+    if (-not (Test-Command $cmd)) {
+        throw "$label did not install correctly. Re-run this script or install $label manually."
+    }
+    Write-Host "  [ok] $label installed" -ForegroundColor Green
 }
 
 # ── Banner ─────────────────────────────────────────────────────────────────────
 Write-Host @"
 
-  ╔══════════════════════════════════════════════════════════╗
-  ║           🏜️  DuneBox Setup (Windows)  🏜️               ║
-  ║                                                          ║
-  ║  18 new features across both apps!                       ║
-  ║  No Visual Studio needed — downloads pre-built app.      ║
-  ║  Takes about 5 minutes.                                  ║
-  ╚══════════════════════════════════════════════════════════╝
-
+  ============================================================
+            DuneBox Setup (Windows) - unattended
+       Installs + configures + launches both sandbox apps.
+       No Visual Studio needed. ~5 minutes, minimal clicks.
+  ============================================================
 "@ -ForegroundColor Cyan
 
 if (-not (Test-Command "winget")) {
-    Write-Host "❌ winget not found. Install App Installer from Microsoft Store." -ForegroundColor Red
+    Write-Host "ERROR: winget not found. Install 'App Installer' from the Microsoft Store, then re-run." -ForegroundColor Red
     exit 1
 }
+if (-not (Test-Path $INSTALL_DIR)) { New-Item -Path $INSTALL_DIR -ItemType Directory -Force | Out-Null }
 
-# Create install directory
-if (-not (Test-Path $INSTALL_DIR)) {
-    New-Item -Path $INSTALL_DIR -ItemType Directory -Force | Out-Null
-}
-
-# ── Step 1: Git + GitHub CLI ───────────────────────────────────────────────────
-Write-Step 1 "Git + GitHub CLI"
-
-if (Test-Command "git") {
-    Write-Host "  ✅ Git installed" -ForegroundColor Green
-} else {
-    Write-Host "  📦 Installing Git..." -ForegroundColor Yellow
-    winget install --id Git.Git --accept-source-agreements --accept-package-agreements
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-}
-
-if (Test-Command "gh") {
-    Write-Host "  ✅ GitHub CLI installed" -ForegroundColor Green
-} else {
-    Write-Host "  📦 Installing GitHub CLI..." -ForegroundColor Yellow
-    winget install --id GitHub.cli --accept-source-agreements --accept-package-agreements
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-}
-
-# ── Step 2: Python + uv ───────────────────────────────────────────────────────
-Write-Step 2 "Python + uv"
-
-if (Test-Command "python") {
-    $pyVer = python --version 2>&1
-    Write-Host "  ✅ $pyVer" -ForegroundColor Green
-} else {
-    Write-Host "  📦 Installing Python 3.12..." -ForegroundColor Yellow
-    winget install --id Python.Python.3.12 --accept-source-agreements --accept-package-agreements
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-}
-
+# ── Step 1: Core tooling ───────────────────────────────────────────────────────
+Write-Step 1 "Core tools (Git, GitHub CLI, Python, uv)"
+Install-IfMissing "git"    "Git.Git"            "Git"
+Install-IfMissing "gh"     "GitHub.cli"         "GitHub CLI"
+Install-IfMissing "python" "Python.Python.3.12" "Python 3.12"
 if (Test-Command "uv") {
-    Write-Host "  ✅ uv installed" -ForegroundColor Green
+    Write-Host "  [ok] uv already installed" -ForegroundColor Green
 } else {
-    Write-Host "  📦 Installing uv..." -ForegroundColor Yellow
-    irm https://astral.sh/uv/install.ps1 | iex
+    Write-Host "  [..] Installing uv..." -ForegroundColor Yellow
+    Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression
+    Sync-Path
+    Write-Host "  [ok] uv installed" -ForegroundColor Green
 }
 
-# ── Step 3: DuneBox (pre-built) ───────────────────────────────────────────────
-Write-Step 3 "DuneBox (pre-built release)"
+# ── Step 2: GitHub authentication ──────────────────────────────────────────────
+Write-Step 2 "GitHub sign-in (private repos)"
+if (-not $Token) {
+    if     ($env:GH_TOKEN)     { $Token = $env:GH_TOKEN }
+    elseif ($env:GITHUB_TOKEN) { $Token = $env:GITHUB_TOKEN }
+}
+$authed = $false
+try { gh auth status 2>$null | Out-Null; $authed = ($LASTEXITCODE -eq 0) } catch { $authed = $false }
 
-if (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe") {
-    Write-Host "  ✅ DuneBox already installed at $DUNEBOX_DIR" -ForegroundColor Green
+if ($authed) {
+    Write-Host "  [ok] Already signed in to GitHub" -ForegroundColor Green
+} elseif ($Token) {
+    Write-Host "  [..] Signing in with supplied token..." -ForegroundColor Yellow
+    $Token | gh auth login --hostname github.com --git-protocol https --with-token
+    Write-Host "  [ok] Signed in (token)" -ForegroundColor Green
 } else {
-    # Clone repo (for shaders, data files, config)
-    if (-not (Test-Path "$DUNEBOX_DIR\.git")) {
-        Write-Host "  📦 Cloning DuneBox repo..." -ForegroundColor Yellow
-        git clone "https://github.com/$REPO_OWNER/DuneBox.git" $DUNEBOX_DIR --quiet
-    }
+    Write-Host "  [!!] One-time browser sign-in required (private repos)." -ForegroundColor Yellow
+    Write-Host "       A code will appear - paste it into the browser that opens." -ForegroundColor Gray
+    gh auth login --hostname github.com --git-protocol https --web
+}
+gh auth setup-git 2>$null | Out-Null   # let git use gh credentials for clones
 
-    # Download pre-built release
-    Write-Host "  📦 Downloading latest pre-built release..." -ForegroundColor Yellow
-    $zipFile = "$env:TEMP\DuneBox-windows-x64.zip"
-
-    Push-Location $DUNEBOX_DIR
-    $downloaded = $false
-    try {
-        gh release download --pattern "DuneBox-windows-x64.zip" --output $zipFile
-        $downloaded = Test-Path $zipFile
-    } catch {}
-    Pop-Location
-
-    if ($downloaded) {
-        if (-not (Test-Path "$DUNEBOX_DIR\bin")) {
-            New-Item "$DUNEBOX_DIR\bin" -ItemType Directory | Out-Null
-        }
-        Expand-Archive -Path $zipFile -DestinationPath "$DUNEBOX_DIR\bin" -Force
-        Remove-Item $zipFile
-        Write-Host "  ✅ DuneBox installed" -ForegroundColor Green
+# ── Step 3: Clone repos ────────────────────────────────────────────────────────
+Write-Step 3 "Clone repositories"
+function Sync-Repo($name, $dir) {
+    if (Test-Path "$dir\.git") {
+        Write-Host "  [..] Updating $name..." -ForegroundColor Yellow
+        Push-Location $dir; git pull --quiet; Pop-Location
     } else {
-        Write-Host "  ⚠️  No release build available yet." -ForegroundColor Yellow
-        Write-Host "     The CI pipeline will build it on the next push." -ForegroundColor Gray
-        Write-Host "     To trigger: git tag v0.1.0 && git push origin v0.1.0" -ForegroundColor Gray
-        Write-Host "     Or just double-click run.bat — it auto-downloads when ready." -ForegroundColor Gray
+        Write-Host "  [..] Cloning $name..." -ForegroundColor Yellow
+        git clone "https://github.com/$REPO_OWNER/$name.git" $dir --quiet
     }
+    Write-Host "  [ok] $name ready" -ForegroundColor Green
 }
+Sync-Repo "DuneBox"         $DUNEBOX_DIR
+Sync-Repo "DuneBox-sandcam" $SANDCAM_DIR
 
-# ── Step 4: DuneBox-sandcam ───────────────────────────────────────────────────
-Write-Step 4 "DuneBox-sandcam"
-
-if (Test-Path "$SANDCAM_DIR\.git") {
-    Write-Host "  ✅ sandcam already cloned at $SANDCAM_DIR" -ForegroundColor Green
-    Push-Location $SANDCAM_DIR
-    git pull --quiet
-    Pop-Location
-} else {
-    Write-Host "  📦 Cloning DuneBox-sandcam..." -ForegroundColor Yellow
-    git clone "https://github.com/$REPO_OWNER/DuneBox-sandcam.git" $SANDCAM_DIR --quiet
-}
-
-Write-Host "  📦 Installing Python dependencies..." -ForegroundColor Yellow
+# ── Step 4: sandcam Python dependencies ────────────────────────────────────────
+Write-Step 4 "sandcam dependencies"
 Push-Location $SANDCAM_DIR
-if (Test-Command "uv") {
-    uv sync
-    Write-Host "  ✅ Dependencies installed" -ForegroundColor Green
-} else {
-    python -m pip install -r requirements.txt
-    Write-Host "  ✅ Dependencies installed (pip)" -ForegroundColor Green
-}
+uv sync
 Pop-Location
+Write-Host "  [ok] sandcam dependencies installed" -ForegroundColor Green
 
-# ── Step 5: GPU check ─────────────────────────────────────────────────────────
-Write-Step 5 "Nvidia GPU"
+# ── Step 5: DuneBox pre-built binary ───────────────────────────────────────────
+Write-Step 5 "DuneBox app (pre-built, no Visual Studio)"
 
-$gpu = Get-CimInstance -ClassName Win32_VideoController | Where-Object { $_.Name -like "*NVIDIA*" -or $_.Name -like "*Quadro*" }
-if ($gpu) {
-    Write-Host "  ✅ $($gpu.Name)" -ForegroundColor Green
-    Write-Host "     Driver: $($gpu.DriverVersion)" -ForegroundColor Gray
-} else {
-    Write-Host "  ⚠️  No Nvidia GPU detected." -ForegroundColor Yellow
-    Write-Host "     Water simulation requires Nvidia GPU." -ForegroundColor Gray
-    Write-Host "     DuneBox topo maps + sandcam will still work fine." -ForegroundColor Gray
+function Expand-IntoBin($zip) {
+    if (-not (Test-Path "$DUNEBOX_DIR\bin")) { New-Item "$DUNEBOX_DIR\bin" -ItemType Directory | Out-Null }
+    Expand-Archive -Path $zip -DestinationPath "$DUNEBOX_DIR\bin" -Force
+    Remove-Item $zip -ErrorAction SilentlyContinue
 }
 
-# ── Step 6: Verify ────────────────────────────────────────────────────────────
-Write-Step 6 "Summary"
+function Get-DuneBoxBinary {
+    $exe = "$DUNEBOX_DIR\bin\Magic-Sand.exe"
+    if (Test-Path $exe) { Write-Host "  [ok] DuneBox already installed" -ForegroundColor Green; return $true }
 
+    # (a) Published release asset
+    $zip = "$env:TEMP\DuneBox-windows-x64.zip"
+    try {
+        gh release download --repo "$REPO_OWNER/DuneBox" --pattern "$ARTIFACT_NAME.zip" --output $zip 2>$null
+        if (Test-Path $zip) { Expand-IntoBin $zip; Write-Host "  [ok] Installed from latest release" -ForegroundColor Green; return $true }
+    } catch {}
+
+    # (b) Artifact from the most recent successful CI build (no tag needed)
+    $runId = $null
+    try {
+        $runId = gh run list --repo "$REPO_OWNER/DuneBox" --workflow "$WORKFLOW_NAME" `
+                    --status success --limit 1 --json databaseId --jq '.[0].databaseId' 2>$null
+    } catch {}
+    if ($runId) {
+        Write-Host "  [..] Downloading build artifact from run $runId..." -ForegroundColor Yellow
+        $tmp = "$env:TEMP\dunebox-artifact"
+        Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+        gh run download $runId --repo "$REPO_OWNER/DuneBox" --name $ARTIFACT_NAME --dir $tmp 2>$null
+        $inner = Get-ChildItem $tmp -Filter "*.zip" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($inner) { Expand-IntoBin $inner.FullName }
+        elseif (Test-Path $tmp) { Copy-Item "$tmp\*" "$DUNEBOX_DIR\bin\" -Recurse -Force }
+        Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+        if (Test-Path $exe) { Write-Host "  [ok] Installed from CI artifact" -ForegroundColor Green; return $true }
+    }
+
+    # (c) No binary anywhere — optionally trigger a cloud build and wait
+    if ($NoBuildWait) {
+        Write-Host "  [!!] No pre-built binary yet (skipping build wait)." -ForegroundColor Yellow
+        Write-Host "       Run '$DUNEBOX_DIR\run.bat' later to fetch it automatically." -ForegroundColor Gray
+        return $false
+    }
+    Write-Host "  [..] No binary found - triggering a cloud build (~20-25 min)..." -ForegroundColor Yellow
+    gh workflow run "$WORKFLOW_NAME" --repo "$REPO_OWNER/DuneBox" --ref main 2>$null
+    Start-Sleep -Seconds 8
+    $newRun = gh run list --repo "$REPO_OWNER/DuneBox" --workflow "$WORKFLOW_NAME" `
+                --limit 1 --json databaseId --jq '.[0].databaseId' 2>$null
+    if ($newRun) {
+        Write-Host "  [..] Watching build $newRun (this is the long part)..." -ForegroundColor Yellow
+        gh run watch $newRun --repo "$REPO_OWNER/DuneBox" --exit-status 2>$null
+        if ($LASTEXITCODE -eq 0) { return (Get-DuneBoxBinary) }  # re-enter to download the fresh artifact
+        Write-Host "  [xx] Cloud build failed. See: gh run view $newRun --repo $REPO_OWNER/DuneBox" -ForegroundColor Red
+    }
+    return $false
+}
+$duneboxReady = Get-DuneBoxBinary
+
+# ── Step 6: GPU check ──────────────────────────────────────────────────────────
+Write-Step 6 "Nvidia GPU"
+$gpu = Get-CimInstance Win32_VideoController | Where-Object { $_.Name -match "NVIDIA|Quadro" }
+if ($gpu) {
+    Write-Host "  [ok] $($gpu.Name) (driver $($gpu.DriverVersion))" -ForegroundColor Green
+} else {
+    Write-Host "  [!!] No Nvidia GPU detected - water sim needs one; everything else still works." -ForegroundColor Yellow
+}
+
+# ── Step 7: Desktop shortcuts ──────────────────────────────────────────────────
+Write-Step 7 "Desktop shortcuts"
+$desktop = [System.Environment]::GetFolderPath("Desktop")
+$ws = New-Object -ComObject WScript.Shell
+foreach ($app in @(
+    @{ Name = "DuneBox";         Dir = $DUNEBOX_DIR },
+    @{ Name = "DuneBox-sandcam"; Dir = $SANDCAM_DIR }
+)) {
+    $sc = $ws.CreateShortcut("$desktop\$($app.Name).lnk")
+    $sc.TargetPath = "$($app.Dir)\run.bat"
+    $sc.WorkingDirectory = $app.Dir
+    $sc.Description = $app.Name
+    if (Test-Path "$($app.Dir)\icon.ico") { $sc.IconLocation = "$($app.Dir)\icon.ico" }
+    $sc.Save()
+}
+Write-Host "  [ok] Shortcuts created on the desktop" -ForegroundColor Green
+
+# ── Summary ────────────────────────────────────────────────────────────────────
+Write-Step "*" "Summary"
 $checks = @(
-    @{ Name = "Git";             OK = (Test-Command "git") },
-    @{ Name = "GitHub CLI";      OK = (Test-Command "gh") },
-    @{ Name = "Python";          OK = (Test-Command "python") },
-    @{ Name = "uv";              OK = (Test-Command "uv") },
-    @{ Name = "DuneBox repo";    OK = (Test-Path "$DUNEBOX_DIR\.git") },
-    @{ Name = "DuneBox exe";     OK = (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe") },
-    @{ Name = "sandcam repo";    OK = (Test-Path "$SANDCAM_DIR\.git") },
-    @{ Name = "Nvidia GPU";      OK = ($gpu -ne $null) }
+    @{ Name = "Git";          OK = (Test-Command "git") },
+    @{ Name = "GitHub CLI";   OK = (Test-Command "gh") },
+    @{ Name = "Python";       OK = (Test-Command "python") },
+    @{ Name = "uv";           OK = (Test-Command "uv") },
+    @{ Name = "sandcam repo"; OK = (Test-Path "$SANDCAM_DIR\.git") },
+    @{ Name = "DuneBox app";  OK = (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe") },
+    @{ Name = "Nvidia GPU";   OK = ($null -ne $gpu) }
 )
-
-$allGood = $true
 foreach ($c in $checks) {
-    $icon = if ($c.OK) { "✅" } else { "⬜"; $allGood = $false }
+    $icon = if ($c.OK) { "[x]" } else { "[ ]" }
     Write-Host "  $icon $($c.Name)"
 }
 
-Write-Host ""
-
-# ── Desktop shortcuts ──────────────────────────────────────────────────────────
-$desktop = [System.Environment]::GetFolderPath("Desktop")
-
-# DuneBox shortcut
-$ws = New-Object -ComObject WScript.Shell
-$sc = $ws.CreateShortcut("$desktop\DuneBox.lnk")
-$sc.TargetPath = "$DUNEBOX_DIR\run.bat"
-$sc.WorkingDirectory = $DUNEBOX_DIR
-$sc.Description = "DuneBox AR Sandbox"
-if (Test-Path "$DUNEBOX_DIR\icon.ico") { $sc.IconLocation = "$DUNEBOX_DIR\icon.ico" }
-$sc.Save()
-
-# sandcam shortcut
-$sc2 = $ws.CreateShortcut("$desktop\DuneBox-sandcam.lnk")
-$sc2.TargetPath = "$SANDCAM_DIR\run.bat"
-$sc2.WorkingDirectory = $SANDCAM_DIR
-$sc2.Description = "DuneBox sandcam (Python)"
-$sc2.Save()
-
-Write-Host "  🖥️  Desktop shortcuts created!" -ForegroundColor Green
-
 Write-Host @"
 
-  ╔══════════════════════════════════════════════════════════╗
-  ║                    ✅  Setup Complete!                   ║
-  ╚══════════════════════════════════════════════════════════╝
+  ============================================================
+                       Setup complete!
+  ============================================================
 
-  To run:
-  ─────────────────────────────────────────────────────────
-  🏜️  DuneBox:   Double-click "DuneBox" on your desktop
-                  or: cd $DUNEBOX_DIR && .\run.bat
+  Launch:
+    sandcam  ->  double-click "DuneBox-sandcam" on the desktop
+    DuneBox  ->  double-click "DuneBox" on the desktop
 
-  🐍  sandcam:   Double-click "DuneBox-sandcam" on your desktop
-                  or: cd $SANDCAM_DIR && .\run.bat
-
-  Both work without a Kinect (test/simulator modes).
-
-  DuneBox (C++) keybindings:
-  ─────────────────────────────────────────────────────────
-  w  Water simulation    l  Lava mode       t  Cycle themes
-  n  Day/night cycle     v  Volcano erupt   space  Start game
-
-  DuneBox-sandcam (Python) keybindings:
-  ─────────────────────────────────────────────────────────
-  C  Contour lines    G  Creatures     V  Creature set cycle
-  D  DEM overlay      E  Ecosystem     N  Day/night cycle
-  S  Sound mute       O  Volcano       K  Earthquake
-  U  WebSocket        B  Bridge        F1-F4  Game modes
-
-  Full guide: https://github.com/$REPO_OWNER/DuneBox-docs
-
+  sandcam runs immediately (mouse-simulator mode if no Kinect).
 "@ -ForegroundColor Cyan
+if (-not $duneboxReady) {
+    Write-Host "  Note: DuneBox binary isn't present yet - its run.bat will fetch it`n        automatically once a CI build succeeds.`n" -ForegroundColor Yellow
+}
+
+if ($Launch) {
+    Write-Host "  Launching sandcam..." -ForegroundColor Green
+    Start-Process -FilePath "$SANDCAM_DIR\run.bat" -WorkingDirectory $SANDCAM_DIR
+}

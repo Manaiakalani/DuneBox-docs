@@ -27,17 +27,20 @@ DuneBox now includes:
 
 ## Option A: Pre-Built Release (Recommended — no coding needed)
 
-On Windows, just run the setup script or double-click `run.bat`:
+On your sandbox PC, open an **elevated PowerShell** and run the one-command bootstrap:
 
 ```powershell
-# Run from elevated PowerShell on your sandbox PC
-cd DuneBox-docs\scripts
-.\setup-windows.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+winget install --id GitHub.cli -e --silent --accept-source-agreements --accept-package-agreements
+gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
+& "$HOME\DuneBox-docs\scripts\bootstrap.ps1" -Launch
 ```
 
-The script downloads the pre-built `.exe`, installs dependencies, and creates a desktop shortcut. **No Visual Studio or build tools needed.**
+This fetches the pre-built `.exe`, installs both apps and their dependencies, and creates desktop shortcuts. **No Visual Studio or build tools needed.** The binary is sourced automatically: latest GitHub release → newest CI build artifact → (if neither exists) a fresh cloud build it triggers and waits for.
 
-Or clone the repo and double-click `run.bat` — it auto-downloads the latest release.
+Already cloned? Just double-click **`run.bat`** in the DuneBox folder — it performs the same release→artifact auto-download on its own.
+
+> The Windows binary is produced by GitHub Actions (`.github/workflows/build.yml`). You can trigger a build any time from the Actions tab (**Run workflow**) or with `gh workflow run "Build & Release" --repo Manaiakalani/DuneBox`.
 
 ---
 
