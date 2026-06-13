@@ -42,6 +42,42 @@ how many times you replug it. This is a one-time setup.
 > **Kinect v2 (Xbox One)** is different — it uses the official Kinect for Windows
 > v2 SDK runtime + a USB 3.0 port, not Zadig/libusbK.
 
+#### Quick sanity check: is the Kinect actually alive?
+
+Run these in order — each rules out a layer (power → USB → driver → depth feed)
+so you know exactly where a failure is.
+
+1. **Power LED.** With the AC adapter connected and USB plugged in, the Kinect's
+   front status LED should **blink green** (some firmware shows solid green once a
+   host app connects). **No LED at all = power problem** — check the AC adapter,
+   not the USB cable.
+2. **Windows sees the USB device.** Open **Device Manager** → expand
+   **libusbK USB Devices**. You should see **Xbox NUI Motor**, **Xbox NUI Camera**,
+   and **Xbox NUI Audio** with **no yellow warning icons**. Missing entries or
+   yellow `!` = redo the Zadig/libusbK step above.
+   - *(Linux/macOS equivalent: `lsusb | grep -i xbox` should list "Xbox NUI Camera".)*
+3. **Motor responds (proves the data path, not just power).** Run the bundled
+   ofxKinect example or, if you have libfreenect installed, `freenect-glview` /
+   `freenect-tilt` — tilting the head up/down means the host can talk to the
+   device. In DuneBox you can also confirm by watching the motor recenter on
+   launch.
+4. **Live depth feed.** Launch DuneBox and wave your hand ~50 cm above the sensor.
+   A **healthy feed** updates smoothly and your hand shows up as a distinct
+   nearer (warmer/brighter) blob that tracks your movement in real time.
+   - **All-black or all-one-color, frozen image** = no depth stream (driver/USB) —
+     go back to steps 2–3.
+   - **Image present but heavily speckled/flickering** = the feed works; it's an
+     IR-interference or geometry issue → see *"Kinect depth image is noisy or
+     flickering"* below.
+   - **Remember the ~0.5–4.5 m range**: the Kinect v1 sees nothing closer than
+     ~50 cm, so mount it high enough above the sand or the whole surface reads as
+     blank/invalid.
+
+> **No Kinect plugged in at all?** DuneBox falls back to a procedural sine-wave
+> terrain. If you see smooth animated waves that *don't* react to your hand, the
+> app is running fine but isn't receiving Kinect data — work back through steps
+> 1–3.
+
 #### Kinect depth image is noisy or flickering
 - Reduce ambient infrared light (sunlight, halogen lamps interfere with Kinect's IR projector)
 - Ensure Kinect is perpendicular to sand — angled views reduce depth accuracy
