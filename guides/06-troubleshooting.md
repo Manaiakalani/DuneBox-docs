@@ -10,12 +10,37 @@
 - **Check USB**: Plug directly into motherboard USB port — **no USB hubs**
 - **Check power**: Kinect v1 requires its AC power adapter; USB alone won't work
 - **Check driver**: On Linux, run `lsusb` — should show "Microsoft Corp. Xbox NUI Camera"
-- **Windows**: May need to plug/unplug Kinect several times (known Windows 10 issue)
+- **Windows — install the libusbK driver first** (see below); plug/unplug a few times only helps *after* the driver is in place
 - **Permissions (Linux)**: Add udev rules for Kinect:
   ```bash
   sudo cp /path/to/openFrameworks/addons/ofxKinect/scripts/51-kinect.rules /etc/udev/rules.d/
   sudo udevadm control --reload-rules
   ```
+
+#### Windows: installing the Kinect v1 driver (Zadig + libusbK)
+
+DuneBox/ofxKinect talk to the Kinect through **libfreenect**, which on Windows
+needs the **libusbK** driver bound to each Kinect interface. Windows does **not**
+provide this automatically — without it the Kinect is never detected, no matter
+how many times you replug it. This is a one-time setup.
+
+1. Download **Zadig** from [zadig.akeo.ie](https://zadig.akeo.ie) (no install — it's a single `.exe`).
+2. Plug in the Kinect v1 (with its **AC power adapter** connected) directly into a motherboard USB port.
+3. Run Zadig, then **Options → List All Devices**.
+4. Three Kinect interfaces appear in the dropdown — install **libusbK** for **each** one:
+   - **Xbox NUI Motor**
+   - **Xbox NUI Camera**
+   - **Xbox NUI Audio**
+   For each: pick it in the dropdown, choose **libusbK** as the target driver, then click **Install Driver** (or **Replace Driver**).
+5. Open **Device Manager** to confirm — you should see a **libusbK USB Devices** group containing the three NUI entries (no yellow warning icons).
+6. Re-launch DuneBox. The Kinect depth view should now appear.
+
+> **Model 1414 vs 1473**: both work. If only some interfaces show up in Zadig,
+> replug the AC adapter — the camera/audio interfaces only enumerate when the
+> Kinect has external power.
+>
+> **Kinect v2 (Xbox One)** is different — it uses the official Kinect for Windows
+> v2 SDK runtime + a USB 3.0 port, not Zadig/libusbK.
 
 #### Kinect depth image is noisy or flickering
 - Reduce ambient infrared light (sunlight, halogen lamps interfere with Kinect's IR projector)

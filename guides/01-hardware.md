@@ -24,6 +24,13 @@ The Xbox 360 Kinect **requires its AC power adapter** for PC use — it doesn't 
 
 Make sure you have this adapter. They're available on eBay/Amazon for ~$10.
 
+### Kinect v1 on Windows — driver required
+Windows has no built-in driver for the Xbox 360 Kinect. Before DuneBox can see
+it, bind the **libusbK** driver to the three Kinect interfaces using **Zadig**
+(a one-time ~2-minute step). See the
+**[Troubleshooting guide](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk)**
+for the exact steps.
+
 ---
 
 ## Projector

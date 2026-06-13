@@ -154,9 +154,15 @@ make run
 ## Step 6: First Run
 
 1. **Connect Kinect v1** via USB (with AC power adapter plugged in)
-2. **Connect projector** via HDMI
-3. **Run DuneBox**
-4. The application should show the Kinect depth view and topographic mapping
+2. **Windows only — install the Kinect driver first.** Windows has no built-in
+   Kinect v1 driver, so the camera won't be detected until you bind **libusbK**
+   to it with **Zadig** (one-time, ~2 min):
+   - Download [Zadig](https://zadig.akeo.ie), run it, **Options → List All Devices**
+   - Install **libusbK** for all three interfaces: **Xbox NUI Motor**, **Xbox NUI Camera**, **Xbox NUI Audio**
+   - Full step-by-step in the **[Troubleshooting guide](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk)**
+3. **Connect projector** via HDMI
+4. **Run DuneBox**
+5. The application should show the Kinect depth view and topographic mapping
 
 ### No Kinect? No problem.
 DuneBox includes a **no-Kinect fallback** that generates a procedural sine-wave terrain. The water simulation will run on this test terrain so you can verify the GPU pipeline works.
