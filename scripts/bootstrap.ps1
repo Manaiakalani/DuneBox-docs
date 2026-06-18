@@ -52,6 +52,17 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
+# ── Ensure Git ─────────────────────────────────────────────────────────────────
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing Git..." -ForegroundColor Yellow
+    winget install --id Git.Git -e --silent --accept-source-agreements --accept-package-agreements --disable-interactivity | Out-Null
+    $env:Path += ";$env:ProgramFiles\Git\cmd"
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        Write-Host "Git did not install correctly. Install Git manually, then re-run." -ForegroundColor Red
+        exit 1
+    }
+}
+
 # ── Ensure GitHub CLI ──────────────────────────────────────────────────────────
 if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
     Write-Host "Installing GitHub CLI..." -ForegroundColor Yellow

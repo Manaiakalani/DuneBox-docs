@@ -31,13 +31,11 @@ DuneBox supports a range of depth sensors across both the C++ and Python applica
 
 ### sandcam (Python)
 
-Set the `sensor.type` field in `sandcam-settings.json`:
+Set the `sensor_type` field in `sandcam-settings.json`:
 
 ```json
 {
-  "sensor": {
-    "type": "kinect_v1"
-  }
+  "sensor_type": "kinect_v1"
 }
 ```
 
@@ -169,9 +167,7 @@ Then set sensor type in `sandcam-settings.json`:
 
 ```json
 {
-  "sensor": {
-    "type": "realsense"
-  }
+  "sensor_type": "realsense"
 }
 ```
 

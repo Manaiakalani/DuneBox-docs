@@ -175,6 +175,8 @@ function Expand-IntoBin($zip) {
     if (-not (Test-Path "$DUNEBOX_DIR\bin")) { New-Item "$DUNEBOX_DIR\bin" -ItemType Directory | Out-Null }
     Expand-Archive -Path $zip -DestinationPath "$DUNEBOX_DIR\bin" -Force
     Remove-Item $zip -ErrorAction SilentlyContinue
+    # Confirm the extraction actually produced the executable
+    return (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe")
 }
 
 function Get-DuneBoxBinary {
@@ -185,7 +187,10 @@ function Get-DuneBoxBinary {
     $zip = "$env:TEMP\DuneBox-windows-x64.zip"
     try {
         gh release download --repo "$REPO_OWNER/DuneBox" --pattern "$ARTIFACT_NAME.zip" --output $zip 2>$null
-        if (Test-Path $zip) { Expand-IntoBin $zip; Write-Host "  [ok] Installed from latest release" -ForegroundColor Green; return $true }
+        if (Test-Path $zip) {
+            if (Expand-IntoBin $zip) { Write-Host "  [ok] Installed from latest release" -ForegroundColor Green; return $true }
+            Write-Host "  [!!] Release zip did not contain Magic-Sand.exe - trying CI artifact..." -ForegroundColor Yellow
+        }
     } catch {}
 
     # (b) Artifact from the most recent successful CI build (no tag needed)

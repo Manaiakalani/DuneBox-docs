@@ -12,7 +12,7 @@ DuneBox-sandcam is the hackable Python companion to DuneBox. It's ideal for rapi
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| Python | 3.10+ | Runtime |
+| Python | 3.11+ | Runtime |
 | uv | latest | Package manager |
 | Kinect v1 + AC adapter | — | Depth camera (optional — has mouse simulator) |
 | websockets | — | Depth streaming server (installed by `uv sync`) |
