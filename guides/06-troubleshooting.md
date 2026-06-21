@@ -83,6 +83,54 @@ so you know exactly where a failure is.
 - Ensure Kinect is perpendicular to sand — angled views reduce depth accuracy
 - Check that nothing reflective is in the sandbox (metal, glass, shiny objects)
 
+#### Kinect v2 Configuration Verifier shows orange warnings (usually safe to ignore)
+
+The **Kinect for Windows v2 Configuration Verifier** (`KinectVerifier.exe`, installed
+with SDK 2.0 under
+`C:\Program Files\Microsoft SDKs\Kinect\v2.0_1409\Tools\KinectConfigurationVerifier\`)
+flags two **orange `!` warnings** on many modern PCs. Neither is fatal — if DuneBox or
+sandcam already shows a live depth feed, you can ignore both. An orange `!` is a
+*warning*; only a red ✗ is a hard failure.
+
+**"Update Configuration Definitions — Failed to update, using last known good definitions"**
+
+- The verifier tries to download fresh definitions from a Microsoft server that has
+  since been **retired**, so the update always fails and it falls back to the bundled
+  ("last known good") definitions.
+- **Resolution: none needed.** This is only an online-update check; the verifier and the
+  Kinect runtime work normally offline. Safe to ignore.
+
+**"USB Controller — Unknown USB 3.0 port detected. Your USB configuration may support Kinect for Windows"**
+
+- The verifier only recognises a fixed list of older Intel/Renesas USB 3.0 host
+  controllers. Newer controllers — e.g. the **Intel USB 3.1 eXtensible Host Controller**
+  using the Microsoft inbox driver — aren't on that list, so it reports
+  "Unknown… *may* support" instead of a definite pass.
+- This is a **soft warning, not a failure** (a real failure reads "USB configuration
+  **not** supported" with a red ✗). Most unknown USB 3.0 controllers, including the Intel
+  xHCI, stream Kinect v2 depth fine.
+- **Resolution:** confirm the sensor actually works (below). Only if depth/IR frames are
+  all-zero or keep dropping out should you move the Kinect Adapter to a different
+  **USB 3.0** port backed by another host controller.
+
+**Confirm the v2 sensor is really working (this overrides both warnings):**
+
+1. **Device Manager** — the Kinect enumerates as **WDF KinectSensor Interface 0**,
+   **Xbox NUI Sensor**, and a **Generic SuperSpeed USB Hub**, all with no yellow `!`.
+2. Run the SDK's **Kinect Studio** or the **Depth Basics-D2D** sample — you should see a
+   live depth image.
+3. In DuneBox the launch log shows `opening Kinect for Windows v2` followed by
+   `setFromPixels(): allocating to match dimensions: 512 424` (depth frames flowing). In
+   sandcam, use the `kinect_v2_sdk` backend.
+
+> **Plug into a rear USB 3.0 port** (directly on the motherboard — blue, or labelled
+> "SS"), not a front-panel header or an external hub. Kinect v2 depth/IR are uncompressed
+> and need full USB 3.0 bandwidth; **color works but depth/IR are all-zero** almost always
+> means the link negotiated USB 2.0.
+>
+> Download SDK 2.0 (includes the runtime, verifier, Kinect Studio, and samples) from
+> Microsoft: <https://www.microsoft.com/en-us/download/details.aspx?id=44561>.
+
 ---
 
 ### Projector Issues

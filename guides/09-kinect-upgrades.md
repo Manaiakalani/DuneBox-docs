@@ -88,7 +88,13 @@ Supported via `sensor_api.py`, which provides a unified interface across all sen
 ### Hardware Requirements
 - **USB 3.0** port (Kinect v2 won't work on USB 2.0)
 - **Xbox One Kinect Adapter** for PC connection (~$30–80 on eBay)
-- On Windows: install Kinect for Windows SDK 2.0
+- On Windows: install Kinect for Windows SDK 2.0 — [download id=44561](https://www.microsoft.com/en-us/download/details.aspx?id=44561) (includes the runtime, **Configuration Verifier**, Kinect Studio, and samples)
+
+> After installing, the SDK's Configuration Verifier may show two orange `!`
+> warnings ("Failed to update configuration definitions" and "Unknown USB 3.0
+> port detected"). On modern PCs both are normally benign — see
+> [06 — Troubleshooting](06-troubleshooting.md) → *Kinect v2 Configuration
+> Verifier shows orange warnings* for what they mean and when to act.
 
 ---
 
