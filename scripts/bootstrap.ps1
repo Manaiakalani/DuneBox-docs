@@ -5,8 +5,8 @@
 
 .DESCRIPTION
     This is the single entry point for a fresh Windows box. It self-elevates to
-    Administrator, makes sure GitHub CLI exists, optionally signs you in (the
-    repos are public, so sign-in is optional but helps with rate limits), clones
+    Administrator, makes sure GitHub CLI exists, signs you in to GitHub (required
+    because DuneBox-sandcam and DuneBox-docs are private repos), clones
     DuneBox-docs, then runs the main unattended installer. Pass-through args go
     straight to setup-windows.ps1.
 

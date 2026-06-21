@@ -6,9 +6,9 @@
 .DESCRIPTION
     Targets any Windows 10/11 PC with an Nvidia GPU (tested on the Lenovo
     ThinkCentre M720Q + Quadro P620). Designed to run unattended: every step
-    is non-interactive except a single optional GitHub sign-in (the repos are
-    public, so sign-in is optional — it enables authenticated API calls which
-    have higher rate limits, but is not required to fetch releases).
+    is non-interactive except a single GitHub sign-in (required because
+    DuneBox-sandcam and DuneBox-docs are private repos — only DuneBox itself
+    is public).
 
     What it does (~5 min):
       1. Installs Git, GitHub CLI, Python 3.12, and uv (via winget, silent)
@@ -28,8 +28,9 @@
     sandcam still installs fully; DuneBox can be fetched later via run.bat.
 
 .PARAMETER Token
-    A GitHub PAT (repo + read:packages scope). When set, sign-in is fully
-    non-interactive. Falls back to $env:GH_TOKEN / $env:GITHUB_TOKEN.
+    A GitHub PAT with `repo` scope (required to clone the private repos). When
+    set, sign-in is fully non-interactive. Falls back to $env:GH_TOKEN /
+    $env:GITHUB_TOKEN.
 
 .EXAMPLE
     # Fully unattended on a box that already has a token in the environment:
@@ -136,7 +137,7 @@ if (Test-Path "$env:WINDIR\System32\VCRUNTIME140_1.dll") {
 }
 
 # ── Step 2: GitHub authentication ──────────────────────────────────────────────
-Write-Step 2 "GitHub sign-in (optional — repos are public)"
+Write-Step 2 "GitHub sign-in (required for private repos)"
 if (-not $Token) {
     if     ($env:GH_TOKEN)     { $Token = $env:GH_TOKEN }
     elseif ($env:GITHUB_TOKEN) { $Token = $env:GITHUB_TOKEN }
@@ -151,7 +152,7 @@ if ($authed) {
     $Token | gh auth login --hostname github.com --git-protocol https --with-token
     Write-Host "  [ok] Signed in (token)" -ForegroundColor Green
 } else {
-    Write-Host "  [..] One-time browser sign-in (optional — repos are public, but auth helps with rate limits)." -ForegroundColor Yellow
+    Write-Host "  [..] One-time browser sign-in (required to clone DuneBox-sandcam and DuneBox-docs)." -ForegroundColor Yellow
     Write-Host "       A code will appear - paste it into the browser that opens." -ForegroundColor Gray
     gh auth login --hostname github.com --git-protocol https --web
 }
