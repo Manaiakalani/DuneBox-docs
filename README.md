@@ -23,10 +23,10 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 & "$HOME\DuneBox-docs\scripts\bootstrap.ps1" -Launch
 ```
 
-**That's it.** The bootstrap self-elevates, signs in to GitHub (one browser click — the repos are private), then runs `setup-windows.ps1`, which:
-- Installs Git, Python 3.12, and uv (silent, no prompts)
+**That's it.** The bootstrap self-elevates, optionally signs in to GitHub (one browser click — optional since the repos are public), then runs `setup-windows.ps1`, which:
+- Installs Git, Python 3.12, uv, and the Microsoft Visual C++ Redistributable (x64) (silent, no prompts)
 - Clones both app repos and installs sandcam's Python dependencies
-- Fetches the **pre-built DuneBox app** — no Visual Studio, no compiling
+- Fetches the **pre-built DuneBox app** — no Visual Studio, no compiling (requires the VC++ Redistributable, which the script installs automatically)
   *(latest release → newest CI build artifact → triggers a cloud build and waits, in that order)*
 - Checks the Quadro P620 driver and creates desktop shortcuts
 - `-Launch` starts sandcam right away
@@ -34,7 +34,7 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 Takes ~5 minutes. Both apps work without a Kinect (mouse-simulator mode).
 
 ### Fully unattended (no clicks)
-Provide a GitHub token (scopes: `repo`, `read:packages`) so even the sign-in is automatic:
+GitHub sign-in is optional since the repos are public. If you want to avoid the one-time browser flow entirely, provide a token (no special scopes required):
 
 ```powershell
 $env:GH_TOKEN = "ghp_your_token_here"

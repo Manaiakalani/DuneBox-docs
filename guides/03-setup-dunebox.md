@@ -38,6 +38,8 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 
 This fetches the pre-built `.exe`, installs both apps and their dependencies, and creates desktop shortcuts. **No Visual Studio or build tools needed.** The binary is sourced automatically: latest GitHub release → newest CI build artifact → (if neither exists) a fresh cloud build it triggers and waits for.
 
+> **Note**: The pre-built `Magic-Sand.exe` requires the **Microsoft Visual C++ Redistributable (x64)**. Without it the app exits immediately with error `0xC0000135`. The bootstrap script installs this automatically via `winget install Microsoft.VCRedist.2015+.x64`.
+
 Already cloned? Just double-click **`run.bat`** in the DuneBox folder — it performs the same release→artifact auto-download on its own.
 
 > The Windows binary is produced by GitHub Actions (`.github/workflows/build.yml`). You can trigger a build any time from the Actions tab (**Run workflow**) or with `gh workflow run "Build & Release" --repo Manaiakalani/DuneBox`.

@@ -6,8 +6,9 @@
 .DESCRIPTION
     Targets any Windows 10/11 PC with an Nvidia GPU (tested on the Lenovo
     ThinkCentre M720Q + Quadro P620). Designed to run unattended: every step
-    is non-interactive except a single one-time GitHub sign-in (only needed
-    because the repos are private — skipped entirely if a token is supplied).
+    is non-interactive except a single optional GitHub sign-in (the repos are
+    public, so sign-in is optional — it enables authenticated API calls which
+    have higher rate limits, but is not required to fetch releases).
 
     What it does (~5 min):
       1. Installs Git, GitHub CLI, Python 3.12, and uv (via winget, silent)
@@ -135,7 +136,7 @@ if (Test-Path "$env:WINDIR\System32\VCRUNTIME140_1.dll") {
 }
 
 # ── Step 2: GitHub authentication ──────────────────────────────────────────────
-Write-Step 2 "GitHub sign-in (private repos)"
+Write-Step 2 "GitHub sign-in (optional — repos are public)"
 if (-not $Token) {
     if     ($env:GH_TOKEN)     { $Token = $env:GH_TOKEN }
     elseif ($env:GITHUB_TOKEN) { $Token = $env:GITHUB_TOKEN }
@@ -150,7 +151,7 @@ if ($authed) {
     $Token | gh auth login --hostname github.com --git-protocol https --with-token
     Write-Host "  [ok] Signed in (token)" -ForegroundColor Green
 } else {
-    Write-Host "  [!!] One-time browser sign-in required (private repos)." -ForegroundColor Yellow
+    Write-Host "  [..] One-time browser sign-in (optional — repos are public, but auth helps with rate limits)." -ForegroundColor Yellow
     Write-Host "       A code will appear - paste it into the browser that opens." -ForegroundColor Gray
     gh auth login --hostname github.com --git-protocol https --web
 }

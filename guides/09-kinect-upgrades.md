@@ -45,13 +45,19 @@ If no hardware is detected, sandcam **automatically falls back to a mouse simula
 
 ### DuneBox (C++)
 
-Set `kinectVersion` in the config file:
+Set `kinectVersion` in `bin/data/settings/kinectProjectorSettings.xml`:
 
-| Value | Sensor |
-|---|---|
-| `1` | Kinect v1 |
-| `2` | Kinect v2 |
-| `3` | Azure Kinect / Orbbec Femto Bolt |
+```xml
+<kinectVersion>2</kinectVersion>
+```
+
+| Value | Sensor | Depth Resolution |
+|---|---|---|
+| `1` | Kinect v1 | 640×480 |
+| `2` | Kinect v2 | 512×424 |
+| `3` | Azure Kinect / Orbbec Femto Bolt | 640×576 (NFOV) |
+
+**Kinect v2 requirements**: Kinect for Windows Runtime/SDK 2.0 and a true USB 3.0 port.
 
 Like sandcam, DuneBox falls back to a mouse-based depth simulator if no hardware is detected.
 

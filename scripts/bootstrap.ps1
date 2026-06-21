@@ -5,9 +5,10 @@
 
 .DESCRIPTION
     This is the single entry point for a fresh Windows box. It self-elevates to
-    Administrator, makes sure GitHub CLI exists and you're signed in (needed
-    because the repos are private), clones DuneBox-docs, then runs the main
-    unattended installer. Pass-through args go straight to setup-windows.ps1.
+    Administrator, makes sure GitHub CLI exists, optionally signs you in (the
+    repos are public, so sign-in is optional but helps with rate limits), clones
+    DuneBox-docs, then runs the main unattended installer. Pass-through args go
+    straight to setup-windows.ps1.
 
 .EXAMPLE
     # From an elevated PowerShell:

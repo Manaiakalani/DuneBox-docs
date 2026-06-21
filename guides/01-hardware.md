@@ -11,8 +11,8 @@ DuneBox needs four things: a **depth camera** (Kinect), a **projector**, a **com
 | Model | DuneBox Support | sandcam Support | Notes |
 |---|---|---|---|
 | **Kinect v1 (Xbox 360)** | ✅ Native | ✅ Native | ⭐ Best supported. Models 1414 & 1473 both work. |
-| **Kinect v2 (Xbox One)** | ⚠️ Needs code mod | ❌ Not supported | Requires Xbox One Kinect adapter for PC ($30–80 eBay). USB 3.0 required. |
-| **Azure Kinect DK** | ⚠️ Experimental | ❌ Not supported | USB-C. No community precedent for sandbox use. |
+| **Kinect v2 (Xbox One)** | ✅ Supported (v0.2.0+) | ✅ Supported | Set `kinectVersion=2` in config. Requires Kinect for Windows Runtime/SDK 2.0, USB 3.0, and Xbox One Kinect adapter ($30–80 eBay). Depth: 512×424. |
+| **Azure Kinect DK** | ✅ Supported | ✅ Supported | USB-C. Set `kinectVersion=3`. Requires Azure Kinect SDK. |
 
 ### Recommendation
 **Start with Kinect v1.** It has universal support, costs $20–60 used, and needs only USB 2.0. Upgrade to v2 or Azure DK later as a stretch goal.
