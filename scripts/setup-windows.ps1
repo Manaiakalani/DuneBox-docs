@@ -124,6 +124,16 @@ if (Test-Command "uv") {
     Write-Host "  [ok] uv installed" -ForegroundColor Green
 }
 
+# Visual C++ Redistributable — the pre-built Magic-Sand.exe links against it.
+# Without it the app exits instantly with 0xC0000135 (STATUS_DLL_NOT_FOUND).
+if (Test-Path "$env:WINDIR\System32\VCRUNTIME140_1.dll") {
+    Write-Host "  [ok] Visual C++ Redistributable already installed" -ForegroundColor Green
+} else {
+    Write-Host "  [..] Installing Visual C++ Redistributable..." -ForegroundColor Yellow
+    winget install --id "Microsoft.VCRedist.2015+.x64" -e @WINGET_ARGS | Out-Null
+    Write-Host "  [ok] Visual C++ Redistributable installed" -ForegroundColor Green
+}
+
 # ── Step 2: GitHub authentication ──────────────────────────────────────────────
 Write-Step 2 "GitHub sign-in (private repos)"
 if (-not $Token) {
