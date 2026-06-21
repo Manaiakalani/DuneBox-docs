@@ -6,19 +6,20 @@ This repo contains the complete build guide for DuneBox — a home-built augment
 
 ## DuneBox Repos
 
-| Repo | What | Tech |
-|---|---|---|
-| **[DuneBox](https://github.com/Manaiakalani/DuneBox)** | Primary AR sandbox — topo maps, water sim, games | C++ / OpenFrameworks |
-| **[DuneBox-sandcam](https://github.com/Manaiakalani/DuneBox-sandcam)** | Hackable sandbox — creatures, ArUco triggers, AI guide | Python / pygame |
-| **[DuneBox-docs](https://github.com/Manaiakalani/DuneBox-docs)** | This repo — build guide, BOM, troubleshooting | Markdown |
+| Repo | What | Tech | Visibility |
+|---|---|---|---|
+| **[DuneBox](https://github.com/Manaiakalani/DuneBox)** | Primary AR sandbox — topo maps, water sim, games | C++ / OpenFrameworks | Public |
+| **[DuneBox-sandcam](https://github.com/Manaiakalani/DuneBox-sandcam)** | Hackable sandbox — creatures, ArUco triggers, AI guide | Python / pygame | Private (auth required) |
+| **[DuneBox-docs](https://github.com/Manaiakalani/DuneBox-docs)** | This repo — build guide, BOM, troubleshooting | Markdown | Private (auth required) |
 
 ## ⚡ Quick Start (Windows)
 
-On your sandbox PC, open an **elevated PowerShell** (right-click → *Run as administrator*) and paste the **one command** below. It installs everything, signs you in once, fetches the pre-built apps, and creates desktop shortcuts:
+On your sandbox PC, open an **elevated PowerShell** (right-click → *Run as administrator*) and paste the commands below. Since DuneBox-docs is a private repo, you must sign in first (one-time browser flow):
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
 winget install --id GitHub.cli -e --silent --accept-source-agreements --accept-package-agreements
+gh auth login --hostname github.com --git-protocol https --web
 gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 & "$HOME\DuneBox-docs\scripts\bootstrap.ps1" -Launch
 ```
@@ -31,7 +32,7 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 - Checks the Quadro P620 driver and creates desktop shortcuts
 - `-Launch` starts sandcam right away
 
-Takes ~5 minutes. Both apps work without a Kinect (mouse-simulator mode).
+Typically takes ~5 minutes if a release artifact is already available; 20–25+ minutes if a cloud build must be triggered. Both apps work without a Kinect (mouse-simulator mode).
 
 ### Fully unattended (no clicks)
 To skip the one-time browser sign-in, provide a token with `repo` scope (required to clone the private repos):
