@@ -71,7 +71,7 @@ cd DuneBox
 ## Step 2: Install OpenFrameworks
 
 1. Download from [openframeworks.cc/download](https://openframeworks.cc/download/)
-2. Extract to a known location (e.g., `C:\openFrameworks` or `~/openFrameworks`)
+2. Extract to a known location (e.g., `C:\openFrameworks` or `%USERPROFILE%\openFrameworks`)
 3. DuneBox should live inside the `apps/myApps/` directory:
    ```
    openFrameworks/
@@ -100,7 +100,7 @@ Some addons ship with OF, others need to be downloaded into `openFrameworks/addo
 | `ofxModal` | ❌ No | `git clone https://github.com/braitsch/ofxModal` into `addons/` |
 
 ```bash
-cd /path/to/openFrameworks/addons/
+cd C:\openFrameworks\addons\
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/braitsch/ofxDatGui
 git clone https://github.com/braitsch/ofxParagraph

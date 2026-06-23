@@ -18,7 +18,7 @@ DuneBox uses **automatic chessboard calibration** — much easier than the manua
 ### Steps
 
 1. **Flatten the sand** — make it as level as possible
-2. **Press `c`** in DuneBox to enter calibration mode
+2. **Open the GUI `Calibration` folder** in DuneBox and click **"Automatically calibrate kinect & projector"** to enter calibration mode
 3. DuneBox **projects a chessboard pattern** onto the sand
 4. The Kinect **sees the projected pattern** and computes the transform
 5. Calibration completes automatically — alignment is saved

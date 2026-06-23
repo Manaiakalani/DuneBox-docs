@@ -148,8 +148,6 @@ DuneBox-sandcam has gained 18 major features since the initial release:
 | `C` | Toggle contour lines |
 | `G` | Toggle creatures |
 | `V` | Cycle creature sets (Modern → Prehistoric → All → None) |
-| `D` | Toggle DEM overlay |
-| `[` / `]` | Cycle built-in terrains |
 | `F5` | Save terrain snapshot |
 | `E` | Toggle ecosystem simulation |
 | `N` | Toggle day/night cycle |

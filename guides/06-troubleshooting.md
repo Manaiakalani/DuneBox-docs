@@ -129,7 +129,7 @@ sandcam already shows a live depth feed, you can ignore both. An orange `!` is a
 ### Projector Issues
 
 #### Colors are shifted / misaligned
-- **Recalibrate** (press `c` in DuneBox)
+- **Recalibrate** (open the GUI `Calibration` folder and click "Automatically calibrate kinect & projector")
 - Check that projector hasn't moved since last calibration
 - Ensure HDMI connection (VGA causes pixel misalignment)
 

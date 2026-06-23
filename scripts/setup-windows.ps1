@@ -194,8 +194,12 @@ Write-Step 5 "DuneBox app (pre-built, no Visual Studio)"
 
 function Expand-IntoBin($zip) {
     if (-not (Test-Path "$DUNEBOX_DIR\bin")) { New-Item "$DUNEBOX_DIR\bin" -ItemType Directory | Out-Null }
+    # Strip the Mark-of-the-Web from the archive *before* extracting so the MOTW
+    # does not propagate onto the extracted files (SmartScreen/SAC otherwise
+    # blocks the unsigned exe).
+    Unblock-File -Path $zip -ErrorAction SilentlyContinue
     Expand-Archive -Path $zip -DestinationPath "$DUNEBOX_DIR\bin" -Force
-    # Unblock extracted files to prevent Windows SmartScreen/MOTW issues
+    # Unblock extracted files too, as a belt-and-suspenders against MOTW issues
     Get-ChildItem "$DUNEBOX_DIR\bin" -Recurse | Unblock-File -ErrorAction SilentlyContinue
     Remove-Item $zip -ErrorAction SilentlyContinue
     # Confirm the extraction actually produced the executable
