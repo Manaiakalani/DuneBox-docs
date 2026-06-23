@@ -18,9 +18,9 @@ DuneBox now includes:
 - **Day/night cycle** — animated lighting with sun/moon transitions
 - **Volcano eruption** — manual trigger at center of sandbox
 - **Startup diagnostics** — GPU, Kinect, and shader checks logged to the console on launch
-- **Inter-app bridge** — WebSocket link to DuneBox-sandcam
+- **Inter-app bridge** — TCP/JSON link to DuneBox-sandcam on `localhost:9876`
 - **Kinect v1/v2/Azure Kinect** — all three sensor generations supported
-- **XML-configurable water** — tune water physics via `data/waterSettings.xml`
+- **XML-configurable water** — tune water physics via `bin/data/settings/waterSettings.xml`
 - **Map & boid games** — interactive educational game modes
 
 ---

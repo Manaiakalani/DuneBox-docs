@@ -22,7 +22,7 @@ DuneBox supports a range of depth sensors across both the C++ and Python applica
 
 | Feature | Kinect v1 | Kinect v2 | Azure Kinect | Orbbec Femto Bolt |
 |---|---|---|---|---|
-| DuneBox (C++) | ✅ Native | ✅ KinectV2Handler | ✅ AzureKinectHandler | ✅ Azure SDK compatible |
+| DuneBox (C++) | ✅ Native | ✅ KinectV2Handler | ⚠️ Experimental (requires source build with `DUNEBOX_USE_AZURE_KINECT`) | ⚠️ Experimental (Azure SDK compat) |
 | sandcam (Python) | ✅ Native | ✅ sensor_api.py | ✅ via pyk4a | ✅ via pyorbbecsdk |
 
 ---
@@ -41,7 +41,7 @@ Set the `sensor_type` field in `sandcam-settings.json`:
 
 Supported values: `"kinect_v1"`, `"kinect_v2"`, `"kinect_v2_sdk"`, `"orbbec"`, `"realsense"`, `"mouse_simulator"`, `"dummy"`
 
-If no hardware is detected, sandcam **automatically falls back to a mouse simulator** (`"dummy"` mode) so you can develop and test without a physical sensor.
+If no hardware is detected, sandcam **automatically falls back to a mouse simulator** (`"mouse_simulator"` mode) so you can develop and test without a physical sensor.
 
 ### DuneBox (C++)
 
@@ -100,7 +100,7 @@ Supported via `sensor_api.py`, which provides a unified interface across all sen
 
 ### DuneBox (C++)
 
-Supported via the **AzureKinectHandler** class using [ofxAzureKinect](https://github.com/prisonerjohn/ofxAzureKinect).
+> ⚠️ **Experimental**: The `AzureKinectHandler` class exists but requires building from source with the `DUNEBOX_USE_AZURE_KINECT` compile flag. Pre-built releases do not include Azure Kinect support — the app will log "unsupported sensor" if `kinectVersion = 3` is set.
 
 ### sandcam (Python)
 
