@@ -120,7 +120,7 @@ uv sync --extra azure
 ### Disadvantages
 - Discontinued by Microsoft in 2023 — only available used ($200–400)
 - Requires Azure Kinect SDK (additional dependency)
-- SDK is Windows-only for DuneBox; Linux also supported for sandcam via pyk4a
+- SDK is Windows-only for the DuneBox C++ app
 
 ---
 

@@ -67,7 +67,7 @@ for the exact steps.
 | sandcam | ✅ 60 FPS |
 | Water simulation | ✅ Solid ~20–35 FPS. P620 = ~30% of GTX 1060. |
 
-**Why #1**: Only machine that can run ALL software including GPU water sim. Desktop = easy Linux. Plenty of USB ports.
+**Why #1**: Only machine that can run ALL software including GPU water sim. Plenty of USB ports.
 
 > ⚠️ **PSU note**: The stock 65W PSU is tight with the P620's 40W draw. Upgrade to the 90W PSU option Lenovo offers.
 
@@ -105,8 +105,7 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 | Intel UHD 630 | — | ~440 | ❌ Topology only |
 
 > **Note:** DuneBox targets **Windows only**. All pre-built releases, CI builds,
-> and setup scripts are Windows-based. The C++ source can theoretically compile on
-> Linux/macOS via OpenFrameworks, but this is unsupported.
+> and setup scripts are Windows-based.
 
 ---
 
