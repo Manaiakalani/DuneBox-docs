@@ -39,7 +39,7 @@ Set the `sensor_type` field in `sandcam-settings.json`:
 }
 ```
 
-Supported values: `"kinect_v1"`, `"kinect_v2"`, `"azure_kinect"`, `"orbbec"`, `"realsense"`, `"simulator"`
+Supported values: `"kinect_v1"`, `"kinect_v2"`, `"kinect_v2_sdk"`, `"orbbec"`, `"realsense"`, `"mouse_simulator"`, `"dummy"`
 
 If no hardware is detected, sandcam **automatically falls back to a mouse simulator** (`"dummy"` mode) so you can develop and test without a physical sensor.
 

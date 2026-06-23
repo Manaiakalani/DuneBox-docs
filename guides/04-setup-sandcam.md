@@ -200,10 +200,12 @@ Supported values:
 | Value | Sensor |
 |---|---|
 | `kinect_v1` | Microsoft Kinect v1 (Xbox 360) |
-| `kinect_v2` | Microsoft Kinect v2 (Xbox One) |
-| `azure_kinect` | Azure Kinect DK |
+| `kinect_v2` | Microsoft Kinect v2 (Xbox One) via libfreenect |
+| `kinect_v2_sdk` | Microsoft Kinect v2 via Kinect SDK 2.0 |
+| `orbbec` | Orbbec depth camera |
 | `realsense` | Intel RealSense (requires `--extra all-sensors`) |
-| `simulator` | Mouse-driven simulator (default when no sensor found) |
+| `mouse_simulator` | Mouse-driven simulator (default when no sensor found) |
+| `dummy` | No-op dummy sensor for testing |
 
 ---
 
