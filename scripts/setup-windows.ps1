@@ -121,8 +121,17 @@ if (Test-Command "uv") {
     Write-Host "  [ok] uv already installed" -ForegroundColor Green
 } else {
     Write-Host "  [..] Installing uv..." -ForegroundColor Yellow
-    Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression
-    Sync-Path
+    # Prefer winget for supply-chain safety; fall back to official installer.
+    $uvInstalled = $false
+    try {
+        winget install --id Astral-sh.uv -e @WINGET_ARGS | Out-Null
+        Sync-Path
+        if (Test-Command "uv") { $uvInstalled = $true }
+    } catch {}
+    if (-not $uvInstalled) {
+        Invoke-RestMethod https://astral.sh/uv/install.ps1 | Invoke-Expression
+        Sync-Path
+    }
     Write-Host "  [ok] uv installed" -ForegroundColor Green
 }
 
@@ -186,6 +195,8 @@ Write-Step 5 "DuneBox app (pre-built, no Visual Studio)"
 function Expand-IntoBin($zip) {
     if (-not (Test-Path "$DUNEBOX_DIR\bin")) { New-Item "$DUNEBOX_DIR\bin" -ItemType Directory | Out-Null }
     Expand-Archive -Path $zip -DestinationPath "$DUNEBOX_DIR\bin" -Force
+    # Unblock extracted files to prevent Windows SmartScreen/MOTW issues
+    Get-ChildItem "$DUNEBOX_DIR\bin" -Recurse | Unblock-File -ErrorAction SilentlyContinue
     Remove-Item $zip -ErrorAction SilentlyContinue
     # Confirm the extraction actually produced the executable
     return (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe")

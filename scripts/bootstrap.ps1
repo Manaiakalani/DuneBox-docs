@@ -69,6 +69,10 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
     Write-Host "Installing GitHub CLI..." -ForegroundColor Yellow
     winget install --id GitHub.cli -e --silent --accept-source-agreements --accept-package-agreements --disable-interactivity | Out-Null
     $env:Path += ";$env:ProgramFiles\GitHub CLI"
+    if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
+        Write-Host "GitHub CLI did not install correctly. Install it manually, then re-run." -ForegroundColor Red
+        exit 1
+    }
 }
 
 # ── Sign in (token or one browser flow) ────────────────────────────────────────
