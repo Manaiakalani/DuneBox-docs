@@ -54,7 +54,7 @@ $env:GH_TOKEN = "ghp_your_token_here"
 ### Getting Started
 1. **[Hardware Guide](guides/01-hardware.md)** — What to buy, PC requirements, Kinect comparison
 2. **[Building the Sandbox](guides/02-build-sandbox.md)** — Physical construction: box, frame, mounts
-3. **[Software Setup: DuneBox](guides/03-setup-dunebox.md)** — Install OpenFrameworks, build, calibrate
+3. **[Software Setup: DuneBox](guides/03-setup-dunebox.md)** — Pre-built install, or build from source with Visual Studio
 4. **[Software Setup: DuneBox-sandcam](guides/04-setup-sandcam.md)** — Python install, test with mouse simulator
 5. **[Calibration](guides/05-calibration.md)** — Aligning the projector and Kinect
 6. **[Troubleshooting](guides/06-troubleshooting.md)** — Common problems and fixes

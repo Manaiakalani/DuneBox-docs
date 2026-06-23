@@ -39,7 +39,7 @@ Set the `sensor_type` field in `sandcam-settings.json`:
 }
 ```
 
-Supported values: `"kinect_v1"`, `"kinect_v2"`, `"orbbec"`, `"realsense"`, `"dummy"`
+Supported values: `"kinect_v1"`, `"kinect_v2"`, `"azure_kinect"`, `"orbbec"`, `"realsense"`, `"simulator"`
 
 If no hardware is detected, sandcam **automatically falls back to a mouse simulator** (`"dummy"` mode) so you can develop and test without a physical sensor.
 
@@ -69,7 +69,7 @@ The original and most widely documented sensor for AR sandboxes.
 
 - **DuneBox (C++)**: Native support via `ofxKinect` (wraps libfreenect)
 - **sandcam (Python)**: Native support via libfreenect
-- **No extra installation needed** — drivers are included with both apps
+- **Windows driver required**: Install the **libusbK** driver via **Zadig** (one-time setup — see [Troubleshooting](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk))
 
 ---
 
@@ -77,9 +77,7 @@ The original and most widely documented sensor for AR sandboxes.
 
 ### DuneBox (C++)
 
-Supported via the **KinectV2Handler** class, which wraps either:
-- **ofxKinectV2** (Linux/macOS) — uses `libfreenect2`
-- **ofxKinectForWindows2** (Windows) — uses Microsoft's Kinect SDK 2.0
+Supported via the **KinectV2Handler** class using **ofxKinectForWindows2** (Microsoft's Kinect SDK 2.0). The pre-built release includes Kinect v2 support out of the box.
 
 ### sandcam (Python)
 
@@ -122,7 +120,7 @@ uv sync --extra azure
 ### Disadvantages
 - Discontinued by Microsoft in 2023 — only available used ($200–400)
 - Requires Azure Kinect SDK (additional dependency)
-- SDK is Windows and Linux only (no macOS)
+- SDK is Windows-only for DuneBox; Linux also supported for sandcam via pyk4a
 
 ---
 

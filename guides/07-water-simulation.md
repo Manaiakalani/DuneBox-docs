@@ -221,5 +221,5 @@ bin/data/settings/waterSettings.xml
 ## Technical Details
 
 For the full shader analysis (uniforms, textures, pipeline), see:
-- `bin/data/shaders/water/SHADER_ANALYSIS.md` (1,250 lines)
-- `docs/RENDER_PIPELINE_ANALYSIS.md`
+- `bin/data/shaders/water/SHADER_ANALYSIS.md` (in the DuneBox repo)
+- `docs/RENDER_PIPELINE_ANALYSIS.md` (in the DuneBox repo)

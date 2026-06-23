@@ -31,7 +31,7 @@ uv sync --extra all-sensors
 
 ## Step 1: Clone the Repo
 
-```bash
+```powershell
 git clone https://github.com/Manaiakalani/DuneBox-sandcam.git
 cd DuneBox-sandcam
 ```
@@ -40,7 +40,7 @@ cd DuneBox-sandcam
 
 ## Step 2: Install Dependencies
 
-```bash
+```powershell
 # Install uv if you don't have it
 pip install uv
 
@@ -58,21 +58,11 @@ This installs:
 ### Windows Note
 sandcam ships with pre-compiled `freenect.dll` and `libusb-1.0.dll` — no C compilation needed on Windows.
 
-### macOS Note
-```bash
-brew install libfreenect
-```
-
-### Linux Note
-```bash
-sudo apt install freenect libfreenect-dev
-```
-
 ---
 
 ## Step 3: Run
 
-```bash
+```powershell
 uv run python main.py
 ```
 
@@ -140,7 +130,7 @@ DuneBox-sandcam has gained 18 major features since the initial release:
 - **Day/night cycle** — animated lighting with adjustable speed
 - **Sensor abstraction** — Kinect v1/v2, Azure Kinect, RealSense via config
 - **Web dashboard** — browser-based depth viewer and controls
-- **Inter-app bridge** — WebSocket link to DuneBox (C++)
+- **Inter-app bridge** — TCP link to DuneBox (C++) on `localhost:9876`
 - **Contour lines** — togglable topographic contour overlay
 - **DEM overlay** — digital elevation model visualization
 - **Terrain snapshots** — save and load terrain state

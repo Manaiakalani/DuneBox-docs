@@ -9,13 +9,7 @@
 #### Kinect not detected / "Failed to initialize streaming mode"
 - **Check USB**: Plug directly into motherboard USB port — **no USB hubs**
 - **Check power**: Kinect v1 requires its AC power adapter; USB alone won't work
-- **Check driver**: On Linux, run `lsusb` — should show "Microsoft Corp. Xbox NUI Camera"
 - **Windows — install the libusbK driver first** (see below); plug/unplug a few times only helps *after* the driver is in place
-- **Permissions (Linux)**: Add udev rules for Kinect:
-  ```bash
-  sudo cp /path/to/openFrameworks/addons/ofxKinect/scripts/51-kinect.rules /etc/udev/rules.d/
-  sudo udevadm control --reload-rules
-  ```
 
 #### Windows: installing the Kinect v1 driver (Zadig + libusbK)
 
@@ -55,7 +49,6 @@ so you know exactly where a failure is.
    **libusbK USB Devices**. You should see **Xbox NUI Motor**, **Xbox NUI Camera**,
    and **Xbox NUI Audio** with **no yellow warning icons**. Missing entries or
    yellow `!` = redo the Zadig/libusbK step above.
-   - *(Linux/macOS equivalent: `lsusb | grep -i xbox` should list "Xbox NUI Camera".)*
 3. **Motor responds (proves the data path, not just power).** Run the bundled
    ofxKinect example or, if you have libfreenect installed, `freenect-glview` /
    `freenect-tilt` — tilting the head up/down means the host can talk to the
@@ -151,14 +144,12 @@ sandcam already shows a live depth feed, you can ignore both. An orange `!` is a
 
 #### "Water2Water shader" error / shader compilation failure
 - **GPU required**: Water sim needs a discrete Nvidia GPU. Intel integrated graphics will show shader errors.
-- **Check OpenGL version**: DuneBox needs OpenGL 3.2+. Run `glxinfo | grep "OpenGL version"` on Linux.
-- On macOS, OpenGL 3.2 core profile is the default — should work.
+- **Check OpenGL version**: DuneBox needs OpenGL 3.2+. Check via GPU-Z or the DuneBox startup diagnostics log.
 
 #### Water simulation is very slow / laggy
 - **Expected on Quadro P620**: ~20–35 FPS for complex water scenes. The P620 has ~30% of the GTX 1060's compute power.
 - Reduce sandbox area in settings (smaller simulation grid = faster)
 - Close other GPU-intensive applications
-- On Linux, ensure you're using the Nvidia proprietary driver, not nouveau
 
 #### Water doesn't flow / sits still
 - Check `cellSize` parameter — if too large/small relative to depth values, water won't move
@@ -183,9 +174,7 @@ sandcam already shows a live depth feed, you can ignore both. An orange `!` is a
 - Make sure `addons.make` lists all required addons
 
 #### sandcam: "No module named freenect"
-- **Windows**: The `freenect.dll` should be in the sandcam directory
-- **macOS**: `brew install libfreenect`
-- **Linux**: `sudo apt install freenect libfreenect-dev`
+- **Windows**: The `freenect.dll` should be in the sandcam directory. Reinstall with `uv sync`.
 
 ---
 
@@ -200,31 +189,7 @@ sandcam already shows a live depth feed, you can ignore both. An orange `!` is a
 #### sandcam runs below 60 FPS
 - sandcam is CPU-bound (no GPU). Close CPU-heavy background tasks.
 - Disable creatures or webcam features if not needed
-- Check that the Python venv is using the correct Python version (3.10+)
-
----
-
-### Linux-Specific Issues
-
-#### SARndbox software won't install on Ubuntu 22+
-Use the new PullPackage installer (2025+):
-```bash
-curl https://vroom.library.ucdavis.edu/PullPackage | bash
-PullPackage Vrui
-PullPackage Kinect
-PullPackage SARndbox
-```
-Or use **Linux Mint 19.3** which the original guide was written for.
-
-#### AMD GPU — water simulation crashes
-AMD GPUs are **not supported** for the water simulation. The SARndbox GLSL shaders have known incompatibilities with AMD's Linux Mesa driver. Use an Nvidia GPU with the proprietary driver.
-
-#### Nvidia Optimus laptop — wrong GPU used
-Laptops with Nvidia Optimus may default to the Intel IGP instead of the Nvidia GPU. Force the Nvidia GPU:
-```bash
-__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./DuneBox
-```
-Or configure in `nvidia-settings`. Desktop PCs with PCIe GPUs (like the M720Q + Quadro P620) don't have this problem.
+- Check that the Python venv is using the correct Python version (3.11+)
 
 ---
 

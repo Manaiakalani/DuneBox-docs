@@ -2,7 +2,7 @@
 
 ## Overview
 
-DuneBox is the primary AR sandbox application. It runs on Windows, macOS, or Linux using OpenFrameworks. This guide walks through getting it built and running.
+DuneBox is the primary AR sandbox application. It runs on **Windows** using OpenFrameworks. This guide walks through getting it built and running.
 
 **Repo**: [Manaiakalani/DuneBox](https://github.com/Manaiakalani/DuneBox)
 
@@ -55,9 +55,7 @@ Only needed if you want to modify the C++ code.
 | Dependency | Version | Purpose |
 |---|---|---|
 | OpenFrameworks | 0.12.0 | Application framework |
-| Visual Studio 2022 (Windows) | — | C++ compiler |
-| Xcode (macOS) | — | C++ compiler |
-| make + gcc (Linux) | — | C++ compiler |
+| Visual Studio 2022 | — | C++ compiler (Windows) |
 
 ---
 
@@ -129,16 +127,9 @@ The `src/WaterSimulation/` directory needs to be included in the project's build
 2. In Solution Explorer, right-click `src` → Add → Existing Item
 3. Add the files under `src/WaterSimulation/` (`WaterSimulation.*` and `ComputeWaterSimulation.*`)
 
-### macOS (Xcode)
-1. Generate/open `Magic-Sand.xcodeproj` (via projectGenerator)
-2. Right-click `src` group → Add Files to "Magic-Sand"
-3. Add the files under `src/WaterSimulation/` (`WaterSimulation.*` and `ComputeWaterSimulation.*`)
-
-### Linux (Makefile)
-The Makefile should automatically pick up all `.cpp` files in `src/` subdirectories. If not, add to the Makefile:
-```makefile
-PROJECT_SOURCES += src/WaterSimulation/WaterSimulation.cpp
-```
+> **Tip:** The projectGenerator will pick up everything under `src/` automatically,
+> including both the fragment backend and compute shader backend. Most users should
+> prefer **Option A** (the pre-built release).
 
 ---
 
@@ -148,17 +139,6 @@ PROJECT_SOURCES += src/WaterSimulation/WaterSimulation.cpp
 1. Open `Magic-Sand.sln` in Visual Studio
 2. Set configuration to **x64 Release**
 3. Build → Build Solution (Ctrl+Shift+B)
-
-### macOS
-1. Open `Magic-Sand.xcodeproj` in Xcode
-2. Select scheme "Magic-Sand" → "My Mac"
-3. Product → Build (⌘B)
-
-### Linux
-```bash
-make -j$(nproc)
-make run
-```
 
 ---
 
@@ -191,7 +171,7 @@ When enabled:
 
 ### Tuning Parameters
 
-Water simulation parameters are now configured via **`data/waterSettings.xml`** (no recompilation needed). Edit the XML file to adjust:
+Water simulation parameters are now configured via **`bin/data/settings/waterSettings.xml`** (no recompilation needed). Edit the XML file to adjust:
 
 | Parameter | Default | What it does |
 |---|---|---|

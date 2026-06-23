@@ -66,7 +66,6 @@ for the exact steps.
 | DuneBox | ✅ 60 FPS |
 | sandcam | ✅ 60 FPS |
 | Water simulation | ✅ Solid ~20–35 FPS. P620 = ~30% of GTX 1060. |
-| Linux | ✅ Trivial install, no Optimus issues |
 
 **Why #1**: Only machine that can run ALL software including GPU water sim. Desktop = easy Linux. Plenty of USB ports.
 
@@ -81,7 +80,6 @@ Same as above but without the Quadro P620. Great for DuneBox and sandcam at 60 F
 Works for DuneBox/sandcam on Windows. Limitations:
 - Only 1× USB-A port (Kinect takes it — need Bluetooth peripherals)
 - No discrete GPU → no water simulation
-- Linux requires patched `linux-surface` kernel
 
 #### 🔴 Surface Pro 5th Gen
 
@@ -96,7 +94,7 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 | RAM | 4GB | 4GB | 4GB |
 | USB | 2.0 (Kinect v1) | 2.0 (Kinect v1) | 2.0 (Kinect v1) |
 | Video out | HDMI/DP (no VGA) | HDMI/DP | HDMI/DP |
-| OS | Windows/macOS/Linux | Windows/macOS/Linux | **Linux only** (for native SARndbox) |
+| OS | Windows 10/11 | Windows 10/11 | Windows 10/11 |
 
 ### GPU Comparison
 
@@ -105,6 +103,10 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 | GTX 1060 (official minimum) | 1,280 | ~4,095 | ✅ Target spec |
 | **Quadro P620** | **512** | **~1,386** | **✅ Solid ~20–35 FPS** |
 | Intel UHD 630 | — | ~440 | ❌ Topology only |
+
+> **Note:** DuneBox targets **Windows only**. All pre-built releases, CI builds,
+> and setup scripts are Windows-based. The C++ source can theoretically compile on
+> Linux/macOS via OpenFrameworks, but this is unsupported.
 
 ---
 
