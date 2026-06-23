@@ -118,7 +118,7 @@ Enable the AI guide in settings for interactive narration. The guide describes t
 
 ## New Features
 
-DuneBox-sandcam has gained 18 major features since the initial release:
+DuneBox-sandcam has gained 16 major features since the initial release:
 
 - **Sound effects** — ambient audio reacts to terrain and weather
 - **Dinosaurs** — prehistoric creature set alongside modern animals
@@ -132,9 +132,7 @@ DuneBox-sandcam has gained 18 major features since the initial release:
 - **Web dashboard** — browser-based depth viewer and controls
 - **Inter-app bridge** — TCP link to DuneBox (C++) on `localhost:9876`
 - **Contour lines** — togglable topographic contour overlay
-- **DEM overlay** — digital elevation model visualization
 - **Terrain snapshots** — save and load terrain state
-- **Built-in terrains** — cycle through preset terrain profiles
 - **Creature set cycling** — Modern, Prehistoric, All, or None
 - **Settings sidebar** — in-app settings panel (Tab key)
 - **WebSocket depth server** — stream depth data to browsers
