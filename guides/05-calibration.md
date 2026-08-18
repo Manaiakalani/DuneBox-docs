@@ -11,17 +11,18 @@ Calibration aligns the projector's output with the Kinect's depth view so that c
 DuneBox uses **automatic chessboard calibration** — much easier than the manual SARndbox method.
 
 ### What You Need
-- Printed chessboard pattern (ships with DuneBox in `bin/data/`)
 - Flat sand surface
 - Kinect and projector both connected and running
+
+DuneBox **projects** the chessboard — you do not print a board.
 
 ### Steps
 
 1. **Flatten the sand** — make it as level as possible
-2. **Open the GUI `Calibration` folder** in DuneBox and click **"Automatically calibrate kinect & projector"** to enter calibration mode
+2. **Open the GUI `Calibration` folder** and click **"Automatically calibrate kinect & projector"**
 3. DuneBox **projects a chessboard pattern** onto the sand
 4. The Kinect **sees the projected pattern** and computes the transform
-5. Calibration completes automatically — alignment is saved
+5. Calibration is saved to `bin/data/settings/calibration.xml`
 
 ### If Calibration Fails
 - Ensure the sand is flat (bumps distort the pattern)
@@ -33,12 +34,10 @@ DuneBox uses **automatic chessboard calibration** — much easier than the manua
 
 ## sandcam Calibration
 
-sandcam uses a similar but separate calibration process. See `calibration/` directory in the sandcam repo.
+sandcam does **not** have a projector-chessboard calibrator.
 
-### Steps
-1. Run `uv run python main.py`
-2. Access calibration from the settings sidebar
-3. Follow the on-screen prompts to align Kinect depth with projector output
+- **Depth range (Kinect v2 SDK):** press **`A`** over flat sand. This writes `min_depth_mm` / `max_depth_mm`.
+- **Webcam ArUco overlay:** enable vision in the sidebar and show corner tags **100 / 101 / 102 / 103** (files in `calibration/`: TL, TR, BR, BL). That warps toy markers onto the heightfield; it does not align the projector.
 
 ---
 

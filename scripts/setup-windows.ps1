@@ -115,6 +115,10 @@ if (-not (Test-Path $INSTALL_DIR)) { New-Item -Path $INSTALL_DIR -ItemType Direc
 # ── Step 1: Core tooling ───────────────────────────────────────────────────────
 Write-Step 1 "Core tools (Git, GitHub CLI, Python, uv)"
 Install-IfMissing "git"    "Git.Git"            "Git"
+if (Test-Command "git") {
+    git lfs install --skip-repo 2>$null | Out-Null
+    Write-Host "  [ok] Git LFS enabled" -ForegroundColor Green
+}
 Install-IfMissing "gh"     "GitHub.cli"         "GitHub CLI"
 Install-IfMissing "python" "Python.Python.3.12" "Python 3.12"
 if (Test-Command "uv") {
@@ -143,6 +147,15 @@ if (Test-Path "$env:WINDIR\System32\VCRUNTIME140_1.dll") {
     Write-Host "  [..] Installing Visual C++ Redistributable..." -ForegroundColor Yellow
     winget install --id "Microsoft.VCRedist.2015+.x64" -e @WINGET_ARGS | Out-Null
     Write-Host "  [ok] Visual C++ Redistributable installed" -ForegroundColor Green
+}
+
+# Kinect v2 runtime is not on winget. The committed C++ settings default to v2,
+# so warn if Kinect20.dll is missing rather than inventing a package id.
+if (Test-Path "$env:WINDIR\System32\Kinect20.dll") {
+    Write-Host "  [ok] Kinect v2 runtime already installed" -ForegroundColor Green
+} else {
+    Write-Host "  [!!] Kinect20.dll not found. Install Kinect Runtime 2.0 from" -ForegroundColor Yellow
+    Write-Host "       https://www.microsoft.com/download/details.aspx?id=44559" -ForegroundColor Gray
 }
 
 # ── Step 2: GitHub authentication ──────────────────────────────────────────────
@@ -185,8 +198,34 @@ Sync-Repo "DuneBox-sandcam" $SANDCAM_DIR
 # ── Step 4: sandcam Python dependencies ────────────────────────────────────────
 Write-Step 4 "sandcam dependencies"
 Push-Location $SANDCAM_DIR
-uv sync
+uv sync --extra kinect-v2
 Pop-Location
+$sandcamSettings = Join-Path $SANDCAM_DIR "sandcam-settings.json"
+if (-not (Test-Path $sandcamSettings)) {
+    $example = Join-Path $SANDCAM_DIR "sandcam-settings.example.json"
+    if (Test-Path $example) {
+        Copy-Item $example $sandcamSettings
+    }
+    $cfg = @{
+        sensor_type     = "kinect_v2_sdk"
+        sensor_fallback = "mouse_simulator"
+    }
+    if (Test-Path $sandcamSettings) {
+        try {
+            $existing = Get-Content $sandcamSettings -Raw | ConvertFrom-Json
+            $existing.sensor_type = "kinect_v2_sdk"
+            if (-not $existing.sensor_fallback) { $existing | Add-Member sensor_fallback "mouse_simulator" }
+            $existing | ConvertTo-Json -Depth 8 | Set-Content $sandcamSettings -Encoding utf8
+        } catch {
+            $cfg | ConvertTo-Json | Set-Content $sandcamSettings -Encoding utf8
+        }
+    } else {
+        $cfg | ConvertTo-Json | Set-Content $sandcamSettings -Encoding utf8
+    }
+    Write-Host "  [ok] First-run settings: kinect_v2_sdk (existing files are left alone)" -ForegroundColor Green
+} else {
+    Write-Host "  [ok] Existing sandcam-settings.json left unchanged" -ForegroundColor Green
+}
 Write-Host "  [ok] sandcam dependencies installed" -ForegroundColor Green
 
 # ── Step 5: DuneBox pre-built binary ───────────────────────────────────────────
@@ -198,11 +237,27 @@ function Expand-IntoBin($zip) {
     # does not propagate onto the extracted files (SmartScreen/SAC otherwise
     # blocks the unsigned exe).
     Unblock-File -Path $zip -ErrorAction SilentlyContinue
-    Expand-Archive -Path $zip -DestinationPath "$DUNEBOX_DIR\bin" -Force
-    # Unblock extracted files too, as a belt-and-suspenders against MOTW issues
-    Get-ChildItem "$DUNEBOX_DIR\bin" -Recurse | Unblock-File -ErrorAction SilentlyContinue
+    $tmp = Join-Path $env:TEMP "dunebox-extract"
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $tmp | Out-Null
+    Expand-Archive -Path $zip -DestinationPath $tmp -Force
+    $dest = "$DUNEBOX_DIR\bin"
+    if (-not (Test-Path $dest)) { New-Item $dest -ItemType Directory | Out-Null }
+    Get-ChildItem $tmp -Recurse -File | Where-Object { $_.Extension -in ".exe", ".dll" } | ForEach-Object {
+        Copy-Item $_.FullName -Destination $dest -Force
+    }
+    $data = Get-ChildItem $tmp -Recurse -Directory -Filter data | Select-Object -First 1
+    if ($data) {
+        # Copy missing data files only — never overwrite a live calibration.
+        # robocopy uses 0-7 for success (including "files copied").
+        & robocopy $data.FullName (Join-Path $dest "data") /E /XC /XN /XO /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
+        if ($LASTEXITCODE -ge 8) {
+            throw "robocopy failed with exit $LASTEXITCODE"
+        }
+    }
+    Get-ChildItem $dest -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item $zip -ErrorAction SilentlyContinue
-    # Confirm the extraction actually produced the executable
     return (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe")
 }
 
@@ -252,7 +307,19 @@ function Get-DuneBoxBinary {
     if ($newRun) {
         Write-Host "  [..] Watching build $newRun (this is the long part)..." -ForegroundColor Yellow
         gh run watch $newRun --repo "$REPO_OWNER/DuneBox" --exit-status 2>$null
-        if ($LASTEXITCODE -eq 0) { return (Get-DuneBoxBinary) }  # re-enter to download the fresh artifact
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  [..] Downloading artifact from the new build..." -ForegroundColor Yellow
+            $tmp = "$env:TEMP\dunebox-artifact"
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+            gh run download $newRun --repo "$REPO_OWNER/DuneBox" --name $ARTIFACT_NAME --dir $tmp 2>$null
+            $inner = Get-ChildItem $tmp -Filter "*.zip" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($inner) { Expand-IntoBin $inner.FullName }
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+            if (Test-Path $exe) { Write-Host "  [ok] Installed from triggered CI build" -ForegroundColor Green; return $true }
+            Write-Host "  [!!] Build finished but the artifact could not be downloaded." -ForegroundColor Yellow
+            Write-Host "       Run '$DUNEBOX_DIR\run.bat' later to fetch it." -ForegroundColor Gray
+            return $false
+        }
         Write-Host "  [xx] Cloud build failed. See: gh run view $newRun --repo $REPO_OWNER/DuneBox" -ForegroundColor Red
     }
     return $false
@@ -273,8 +340,8 @@ Write-Step 7 "Desktop shortcuts"
 $desktop = [System.Environment]::GetFolderPath("Desktop")
 $ws = New-Object -ComObject WScript.Shell
 foreach ($app in @(
-    @{ Name = "DuneBox";         Dir = $DUNEBOX_DIR },
-    @{ Name = "DuneBox-sandcam"; Dir = $SANDCAM_DIR }
+    @{ Name = "DuneBox";                     Dir = $SANDCAM_DIR },
+    @{ Name = "DuneBox (Magic-Sand C++)";    Dir = $DUNEBOX_DIR }
 )) {
     $sc = $ws.CreateShortcut("$desktop\$($app.Name).lnk")
     $sc.TargetPath = "$($app.Dir)\run.bat"
@@ -283,6 +350,8 @@ foreach ($app in @(
     if (Test-Path "$($app.Dir)\icon.ico") { $sc.IconLocation = "$($app.Dir)\icon.ico" }
     $sc.Save()
 }
+$legacy = Join-Path $desktop "DuneBox-sandcam.lnk"
+if (Test-Path $legacy) { Remove-Item $legacy -Force }
 Write-Host "  [ok] Shortcuts created on the desktop" -ForegroundColor Green
 
 # ── Summary ────────────────────────────────────────────────────────────────────
@@ -308,10 +377,10 @@ Write-Host @"
   ============================================================
 
   Launch:
-    sandcam  ->  double-click "DuneBox-sandcam" on the desktop
-    DuneBox  ->  double-click "DuneBox" on the desktop
+    sandcam  ->  double-click "DuneBox" on the desktop
+    DuneBox  ->  double-click "DuneBox (Magic-Sand C++)" on the desktop
 
-  sandcam runs immediately (mouse-simulator mode if no Kinect).
+  sandcam uses Kinect v2 (SDK) and falls back to the mouse simulator.
 "@ -ForegroundColor Cyan
 if (-not $duneboxReady) {
     Write-Host "  Note: DuneBox binary isn't present yet - its run.bat will fetch it`n        automatically once a CI build succeeds.`n" -ForegroundColor Yellow

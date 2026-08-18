@@ -91,12 +91,7 @@ For projector output, sandcam supports a **separate display window**:
 ## Features to Explore
 
 ### Biome-Aware Creatures
-Animals appear contextually based on terrain elevation:
-- Deep water → fish, sharks
-- Shallow water → crabs, turtles
-- Beach → seagulls
-- Grassland → rabbits, deer
-- Mountains → goats, eagles
+Modern set: **sharks** (water) and **dinosaurs** (land). Cycle with `V` for prehistoric species (T-Rex, raptor, pteranodon, stegosaurus, triceratops, brachiosaurus).
 
 Creature definitions are in `creatures.py` — easy to add your own!
 
@@ -105,11 +100,14 @@ Creature definitions are in `creatures.py` — easy to add your own!
 2. Attach markers to physical toys (dinosaurs, boats, houses, etc.)
 3. Place a marked toy on the sand → the webcam detects it → triggers a themed event
 
-Events are defined in `interaction_engine.py`:
-- Volcano toy → eruption animation
-- Dinosaur toy → prehistoric biome overlay
-- Boat toy → water current visualization
-- Tree toy → forest growth animation
+Printed 4×4 tags live in `calibration/` (dictionary **DICT_4X4_250**):
+
+| IDs | Role |
+|---|---|
+| 1–5 | Toys: boat, dino, house, tree, volcano (guide + ripples) |
+| 10–13 | Dinosaur spawn / extinction |
+| 20 / 21 | Place volcano / trigger nearest volcano |
+| 100 / 101 / 102 / 103 | Corners: TL / TR / BR / BL |
 
 ### AI Guide (Optional)
 Enable the AI guide in settings for interactive narration. The guide describes terrain features and teaches geography concepts. See `ai_guide.py`.
@@ -126,13 +124,12 @@ DuneBox-sandcam has gained 16 major features since the initial release:
 - **Earthquakes** — manual earthquake trigger shakes the terrain
 - **Ecosystem simulation** — food chains, predator/prey dynamics
 - **Game modes** — Build a Dam, Volcano Defense, Watershed Puzzle, Biome Sculpt
-- **DEM loading** — import real-world terrain from GeoTIFF files
 - **Day/night cycle** — animated lighting with adjustable speed
 - **Sensor abstraction** — Kinect v1/v2, Azure Kinect, RealSense via config
 - **Web dashboard** — browser-based depth viewer and controls
 - **Inter-app bridge** — TCP link to DuneBox (C++) on `localhost:9876`
 - **Contour lines** — togglable topographic contour overlay
-- **Terrain snapshots** — save and load terrain state
+- **Terrain snapshots** — `F5` saves the current heightfield
 - **Creature set cycling** — Modern, Prehistoric, All, or None
 - **Settings sidebar** — in-app settings panel (Tab key)
 - **WebSocket depth server** — stream depth data to browsers
@@ -143,6 +140,7 @@ DuneBox-sandcam has gained 16 major features since the initial release:
 
 | Key | Action |
 |---|---|
+| `A` | Auto-calibrate Kinect v2 depth range from the flat sand |
 | `C` | Toggle contour lines |
 | `G` | Toggle creatures |
 | `V` | Cycle creature sets (Modern → Prehistoric → All → None) |
@@ -152,9 +150,9 @@ DuneBox-sandcam has gained 16 major features since the initial release:
 | `+` / `-` | Speed up / slow down day/night |
 | `P` | Pause day/night cycle |
 | `S` | Toggle sound mute |
-| `O` | Toggle volcano placement mode |
+| `O` | Toggle volcano click-to-place |
 | `K` | Manual earthquake trigger |
-| `U` | Toggle WebSocket depth server |
+| `U` | Toggle WebSocket depth server (`ws://127.0.0.1:8765`) |
 | `B` | Toggle inter-app bridge |
 | `F1` | Game: Build a Dam |
 | `F2` | Game: Volcano Defense |
@@ -169,11 +167,9 @@ DuneBox-sandcam has gained 16 major features since the initial release:
 
 ## Web Dashboard
 
-When the WebSocket depth server is enabled (press `U`), a browser-based dashboard is available at:
+When the WebSocket depth server is enabled (press `U`), it listens on **`ws://127.0.0.1:8765`** (localhost only). There is no HTTP server on that port.
 
-```
-http://localhost:8765
-```
+Open `DuneBox-sandcam/web/index.html` in a browser (or serve that folder with any static file server). The page connects to the WebSocket.
 
 The dashboard provides:
 - Live depth data visualization
@@ -188,7 +184,8 @@ sandcam supports multiple depth sensors via the `sensor_type` field in `sandcam-
 
 ```json
 {
-  "sensor_type": "kinect_v1"
+  "sensor_type": "kinect_v2_sdk",
+  "sensor_fallback": "mouse_simulator"
 }
 ```
 
@@ -211,15 +208,18 @@ Edit `sandcam-settings.json`:
 
 ```json
 {
-  "display": "auto",
-  "fullscreen": true,
   "sensor_type": "kinect_v1",
-  "kinect_enabled": true,
-  "creatures_enabled": true,
-  "webcam_enabled": false,
-  "ai_guide_enabled": false
+  "sensor_fallback": "mouse_simulator",
+  "fullscreen": false,
+  "display_index": 0,
+  "show_creatures": true,
+  "vision_enabled": false,
+  "ai_enabled": false,
+  "guide_enabled": true
 }
 ```
+
+Unknown keys are ignored. Copy `sandcam-settings.example.json` for the full portable default set. After mounting a Kinect v2, press **`A`** to auto-calibrate `min_depth_mm` / `max_depth_mm`.
 
 ---
 
