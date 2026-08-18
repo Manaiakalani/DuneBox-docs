@@ -19,7 +19,7 @@ The sandbox is a plywood box filled with sand, mounted on a rigid frame with the
 | **Kinect mount** | L-bracket or 3D-printed mount | $5–15 | Hardware store / 3D print |
 | **Projector mount** | Ceiling mount or shelf bracket | $15–30 | Amazon |
 | **Spray bottle** | For dampening sand | $3 | Dollar store |
-| **Calibration target** | Printed chessboard on cardstock | $0–5 | Print at home |
+| **ArUco tags (sandcam)** | Print `calibration/TL-100.svg` … `BL-103.svg` | $0–5 | Optional; C++ projects its own chessboard |
 | | | **$220–365 total** | |
 
 ---

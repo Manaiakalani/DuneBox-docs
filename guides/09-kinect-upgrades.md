@@ -55,7 +55,7 @@ Set `kinectVersion` in `bin/data/settings/kinectProjectorSettings.xml`:
 |---|---|---|
 | `1` | Kinect v1 | 640×480 |
 | `2` | Kinect v2 | 512×424 |
-| `3` | Azure Kinect / Orbbec Femto Bolt | 640×576 (NFOV) |
+| `3` | Azure / Femto — **refused at startup** | — |
 
 **Kinect v2 requirements**: Kinect for Windows Runtime/SDK 2.0 and a true USB 3.0 port.
 
@@ -100,7 +100,7 @@ Supported via `sensor_api.py`, which provides a unified interface across all sen
 
 ### DuneBox (C++)
 
-> ⚠️ **Experimental**: The `AzureKinectHandler` class exists but requires building from source with the `DUNEBOX_USE_AZURE_KINECT` compile flag. Pre-built releases do not include Azure Kinect support — the app will log "unsupported sensor" if `kinectVersion = 3` is set.
+**Not supported.** `kinectVersion=3` is refused at startup even if you define `DUNEBOX_USE_AZURE_KINECT` — the handler is not wired. Use sandcam.
 
 ### sandcam (Python)
 
