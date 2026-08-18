@@ -10,12 +10,12 @@ DuneBox needs four things: a **depth camera** (Kinect), a **projector**, a **com
 
 | Model | DuneBox Support | sandcam Support | Notes |
 |---|---|---|---|
-| **Kinect v1 (Xbox 360)** | ✅ Native | ✅ Native | ⭐ Best supported. Models 1414 & 1473 both work. |
-| **Kinect v2 (Xbox One)** | ✅ Supported (v0.2.0+) | ✅ Supported | Set `kinectVersion=2` in config. Requires Kinect for Windows Runtime/SDK 2.0, USB 3.0, and Xbox One Kinect adapter ($30–80 eBay). Depth: 512×424. |
-| **Azure Kinect DK** | ✅ Supported | ✅ Supported | USB-C. Set `kinectVersion=3`. Requires Azure Kinect SDK. |
+| **Kinect v1 (Xbox 360)** | ✅ Native | ✅ Native | Models 1414 & 1473. Set `<kinectVersion>1</kinectVersion>` + Zadig/libusbK. |
+| **Kinect v2 (Xbox One)** | ✅ Default (v0.2.0+) | ✅ `kinect_v2_sdk` | Runtime 2.0, USB 3.0, Xbox One adapter ($30–80). Depth: 512×424. |
+| **Azure Kinect DK** | ❌ Not in this binary | ✅ via `pyk4a` | C++ `kinectVersion=3` is a hard error. Use sandcam. |
 
 ### Recommendation
-**Start with Kinect v1.** It has universal support, costs $20–60 used, and needs only USB 2.0. Upgrade to v2 or Azure DK later as a stretch goal.
+**Windows default is Kinect v2.** Install Runtime 2.0, use a true USB 3.0 port, and press **`A`** in sandcam after mounting. Keep v1 if that is what you already have.
 
 ### Kinect v1 Power
 The Xbox 360 Kinect **requires its AC power adapter** for PC use — it doesn't run on USB bus power alone. The adapter splits into:
@@ -90,7 +90,7 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 | Spec | DuneBox (Magic-Sand) | sandcam | Water simulation |
 |---|---|---|---|
 | CPU | x86 quad-core, 2GHz+ | Any modern CPU | x86, 3GHz+ |
-| GPU | Integrated OK | None needed | **Nvidia GTX 1060+** (AMD won't work) |
+| GPU | Integrated OK | None needed | **OpenGL 3.2+** (4.3+ for compute); Nvidia recommended, AMD untested |
 | RAM | 4GB | 4GB | 4GB |
 | USB | 2.0 (Kinect v1) | 2.0 (Kinect v1) | 2.0 (Kinect v1) |
 | Video out | HDMI/DP (no VGA) | HDMI/DP | HDMI/DP |
@@ -98,11 +98,13 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 
 ### GPU Comparison
 
-| GPU | CUDA Cores | GFLOPS | Water Sim? |
-|---|---|---|---|
-| GTX 1060 (official minimum) | 1,280 | ~4,095 | ✅ Target spec |
-| **Quadro P620** | **512** | **~1,386** | **✅ Solid ~20–35 FPS** |
-| Intel UHD 630 | — | ~440 | ❌ Topology only |
+| GPU | Notes | Water Sim? |
+|---|---|---|
+| GTX 1060+ / similar | OpenGL 4.3 compute path | ✅ Target spec |
+| **Quadro P620** | Tested booth GPU | **✅ Solid ~20–35 FPS** |
+| Intel UHD 630 | GL 3.2 fragment path may run | ❌ Usually topology only |
+
+Water is **GLSL**, not CUDA. AMD cards with GL 4.3 are not ruled out by the code; they are untested.
 
 > **Note:** DuneBox targets **Windows only**. All pre-built releases, CI builds,
 > and setup scripts are Windows-based.

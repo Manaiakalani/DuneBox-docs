@@ -115,6 +115,10 @@ if (-not (Test-Path $INSTALL_DIR)) { New-Item -Path $INSTALL_DIR -ItemType Direc
 # ── Step 1: Core tooling ───────────────────────────────────────────────────────
 Write-Step 1 "Core tools (Git, GitHub CLI, Python, uv)"
 Install-IfMissing "git"    "Git.Git"            "Git"
+if (Test-Command "git") {
+    git lfs install --skip-repo 2>$null | Out-Null
+    Write-Host "  [ok] Git LFS enabled" -ForegroundColor Green
+}
 Install-IfMissing "gh"     "GitHub.cli"         "GitHub CLI"
 Install-IfMissing "python" "Python.Python.3.12" "Python 3.12"
 if (Test-Command "uv") {
@@ -143,6 +147,22 @@ if (Test-Path "$env:WINDIR\System32\VCRUNTIME140_1.dll") {
     Write-Host "  [..] Installing Visual C++ Redistributable..." -ForegroundColor Yellow
     winget install --id "Microsoft.VCRedist.2015+.x64" -e @WINGET_ARGS | Out-Null
     Write-Host "  [ok] Visual C++ Redistributable installed" -ForegroundColor Green
+}
+
+# Kinect v2 runtime (Kinect20.dll). The committed DuneBox settings default to v2.
+if (Test-Path "$env:WINDIR\System32\Kinect20.dll") {
+    Write-Host "  [ok] Kinect v2 runtime already installed" -ForegroundColor Green
+} else {
+    Write-Host "  [..] Installing Kinect for Windows Runtime 2.0..." -ForegroundColor Yellow
+    try {
+        winget install --id "Microsoft.KinectRuntime.2" -e @WINGET_ARGS | Out-Null
+    } catch {}
+    if (Test-Path "$env:WINDIR\System32\Kinect20.dll") {
+        Write-Host "  [ok] Kinect v2 runtime installed" -ForegroundColor Green
+    } else {
+        Write-Host "  [!!] Kinect20.dll not found. Install Runtime 2.0 from" -ForegroundColor Yellow
+        Write-Host "       https://www.microsoft.com/download/details.aspx?id=44559" -ForegroundColor Gray
+    }
 }
 
 # ── Step 2: GitHub authentication ──────────────────────────────────────────────
@@ -185,7 +205,7 @@ Sync-Repo "DuneBox-sandcam" $SANDCAM_DIR
 # ── Step 4: sandcam Python dependencies ────────────────────────────────────────
 Write-Step 4 "sandcam dependencies"
 Push-Location $SANDCAM_DIR
-uv sync
+uv sync --extra kinect-v2
 Pop-Location
 Write-Host "  [ok] sandcam dependencies installed" -ForegroundColor Green
 
@@ -198,11 +218,23 @@ function Expand-IntoBin($zip) {
     # does not propagate onto the extracted files (SmartScreen/SAC otherwise
     # blocks the unsigned exe).
     Unblock-File -Path $zip -ErrorAction SilentlyContinue
-    Expand-Archive -Path $zip -DestinationPath "$DUNEBOX_DIR\bin" -Force
-    # Unblock extracted files too, as a belt-and-suspenders against MOTW issues
-    Get-ChildItem "$DUNEBOX_DIR\bin" -Recurse | Unblock-File -ErrorAction SilentlyContinue
+    $tmp = Join-Path $env:TEMP "dunebox-extract"
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $tmp | Out-Null
+    Expand-Archive -Path $zip -DestinationPath $tmp -Force
+    $dest = "$DUNEBOX_DIR\bin"
+    if (-not (Test-Path $dest)) { New-Item $dest -ItemType Directory | Out-Null }
+    Get-ChildItem $tmp -Recurse -Include *.exe,*.dll | ForEach-Object {
+        Copy-Item $_.FullName -Destination $dest -Force
+    }
+    $data = Get-ChildItem $tmp -Recurse -Directory -Filter data | Select-Object -First 1
+    if ($data) {
+        # Copy missing data files only — never overwrite a live calibration.
+        robocopy $data.FullName (Join-Path $dest "data") /E /XC /XN /XO /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
+    }
+    Get-ChildItem $dest -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item $zip -ErrorAction SilentlyContinue
-    # Confirm the extraction actually produced the executable
     return (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe")
 }
 
@@ -252,7 +284,19 @@ function Get-DuneBoxBinary {
     if ($newRun) {
         Write-Host "  [..] Watching build $newRun (this is the long part)..." -ForegroundColor Yellow
         gh run watch $newRun --repo "$REPO_OWNER/DuneBox" --exit-status 2>$null
-        if ($LASTEXITCODE -eq 0) { return (Get-DuneBoxBinary) }  # re-enter to download the fresh artifact
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  [..] Downloading artifact from the new build..." -ForegroundColor Yellow
+            $tmp = "$env:TEMP\dunebox-artifact"
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+            gh run download $newRun --repo "$REPO_OWNER/DuneBox" --name $ARTIFACT_NAME --dir $tmp 2>$null
+            $inner = Get-ChildItem $tmp -Filter "*.zip" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($inner) { Expand-IntoBin $inner.FullName }
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+            if (Test-Path $exe) { Write-Host "  [ok] Installed from triggered CI build" -ForegroundColor Green; return $true }
+            Write-Host "  [!!] Build finished but the artifact could not be downloaded." -ForegroundColor Yellow
+            Write-Host "       Run '$DUNEBOX_DIR\run.bat' later to fetch it." -ForegroundColor Gray
+            return $false
+        }
         Write-Host "  [xx] Cloud build failed. See: gh run view $newRun --repo $REPO_OWNER/DuneBox" -ForegroundColor Red
     }
     return $false
@@ -273,8 +317,8 @@ Write-Step 7 "Desktop shortcuts"
 $desktop = [System.Environment]::GetFolderPath("Desktop")
 $ws = New-Object -ComObject WScript.Shell
 foreach ($app in @(
-    @{ Name = "DuneBox";         Dir = $DUNEBOX_DIR },
-    @{ Name = "DuneBox-sandcam"; Dir = $SANDCAM_DIR }
+    @{ Name = "DuneBox";                     Dir = $SANDCAM_DIR },
+    @{ Name = "DuneBox (Magic-Sand C++)";    Dir = $DUNEBOX_DIR }
 )) {
     $sc = $ws.CreateShortcut("$desktop\$($app.Name).lnk")
     $sc.TargetPath = "$($app.Dir)\run.bat"
@@ -283,6 +327,8 @@ foreach ($app in @(
     if (Test-Path "$($app.Dir)\icon.ico") { $sc.IconLocation = "$($app.Dir)\icon.ico" }
     $sc.Save()
 }
+$legacy = Join-Path $desktop "DuneBox-sandcam.lnk"
+if (Test-Path $legacy) { Remove-Item $legacy -Force }
 Write-Host "  [ok] Shortcuts created on the desktop" -ForegroundColor Green
 
 # ── Summary ────────────────────────────────────────────────────────────────────

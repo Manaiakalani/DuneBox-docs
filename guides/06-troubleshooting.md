@@ -6,6 +6,15 @@
 
 ### Kinect Issues
 
+#### Do not run both apps at once
+Kinect v2 is **exclusive**. Close sandcam before launching Magic-Sand (and vice versa) or you will see "no Kinect connected" / "in use by another app".
+
+#### Missing Kinect20.dll (Kinect v2)
+The pre-built C++ app needs **Kinect for Windows Runtime 2.0**. Install from [download 44559](https://www.microsoft.com/download/details.aspx?id=44559). `run.bat` warns if `Kinect20.dll` is missing.
+
+#### sandcam depth looks wrong after mounting a v2
+Press **`A`** to auto-calibrate `min_depth_mm` / `max_depth_mm` from the flat sand.
+
 #### Kinect not detected / "Failed to initialize streaming mode"
 - **Check USB**: Plug directly into motherboard USB port — **no USB hubs**
 - **Check power**: Kinect v1 requires its AC power adapter; USB alone won't work

@@ -121,16 +121,10 @@ On GPUs that support OpenGL 4.3 or later, DuneBox automatically uses **compute s
 
 Compute shaders replace the 8 fragment passes with **5 compute dispatches**:
 
-| Fragment Pipeline (GL 3.3) | Compute Pipeline (GL 4.3+) |
+| Fragment Pipeline (GL 3.2) | Compute Pipeline (GL 4.3+) |
 |---|---|
-| 1. BathymetryUpdate.frag | 1. BathymetryUpdate.comp |
-| 2. SlopeFluxDeriv.frag | 2. SlopeFluxDeriv.comp *(merged pass)* |
-| 3. EulerStep.frag | 3. EulerStep.comp |
-| 4. SlopeFluxDeriv.frag (repeat) | 4. RungeKuttaStep.comp |
-| 5. RungeKuttaStep.frag | 5. WaterAddUpdate.comp *(merged pass)* |
-| 6. Boundary.frag | |
-| 7. WaterAdd.frag + WaterUpdate.frag | |
-| 8. WaterRender.frag | |
+| 8 FBO ping-pong passes | 5 compute dispatches |
+| Bathymetry + slope/flux + RK2 + boundary + add + render | `bathymetry_update.glsl` → `water_step.glsl` (predictor + corrector) → `boundary.glsl` → `water_add.glsl` + `water_render.glsl` |
 
 The key optimization is **shared memory** — slope calculation, flux computation, and derivative estimation are merged into a single dispatch because neighboring workgroup threads can share intermediate results via `shared` memory instead of writing to a texture and reading it back.
 
@@ -154,11 +148,11 @@ Located in `bin/data/shaders/water/compute/`:
 
 | Shader | Purpose |
 |---|---|
-| `BathymetryUpdate.comp` | Syncs terrain with Kinect depth |
-| `SlopeFluxDeriv.comp` | Merged slope + flux + derivative via shared memory |
-| `EulerStep.comp` | RK2 predictor step |
-| `RungeKuttaStep.comp` | RK2 corrector + boundary enforcement |
-| `WaterAddUpdate.comp` | Rain addition + evaporation/damping in one pass |
+| `bathymetry_update.glsl` | Syncs terrain with Kinect depth |
+| `water_step.glsl` | RK2 predictor (`mode=0`) and corrector (`mode=1`) |
+| `boundary.glsl` | Edge conditions |
+| `water_add.glsl` | Rain / evaporation |
+| `water_render.glsl` | Color overlay |
 
 ---
 
@@ -179,9 +173,7 @@ DuneBox supports a **lava mode** that reuses the same shallow-water physics engi
 - **`l` key** — toggles lava mode on/off
 - Activating lava mode automatically switches the color theme to **Volcanic**
 
-### Dual-Fluid Simulation (Compute Backend Only)
-
-When using the compute shader backend, DuneBox supports **water and lava simultaneously** on the same terrain. The two fluids are tracked in separate texture layers and rendered with distinct colors. Lava meeting water produces steam particle effects.
+Lava is a **parameter set** on the same fluid (`FLUID_WATER` vs `FLUID_LAVA`), not a second simultaneous layer. There are no steam particles in the C++ app.
 
 ---
 

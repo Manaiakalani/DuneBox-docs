@@ -62,10 +62,14 @@ Each species has an **elevation range** — creatures only spawn in terrain zone
 
 | Marker ID | Effect |
 |---|---|
+| 1–5 | Toys: boat, dino, house, tree, volcano |
 | 10 | Spawn T-Rex pack |
 | 11 | Spawn Raptor pack |
 | 12 | Spawn Pteranodon flock |
 | 13 | Extinction event (kills all dinosaurs) |
+| 20 | Place a volcano at the tag |
+| 21 | Trigger the nearest volcano |
+| 100–103 | Sandbox corners (TL / TR / BR / BL) |
 
 ---
 
@@ -75,8 +79,9 @@ Place and trigger volcanoes anywhere on the terrain.
 
 ### Placement
 
-- **`O` key** — places a volcano at the center of the terrain
-- **ArUco marker ID 5** — places a volcano at the marker's position
+- **`O` key** — toggles click-to-place; click the sand to plant a vent and erupt
+- **ArUco marker ID 20** — places a volcano at the tag (debounced; snaps to a nearby vent)
+- **ArUco marker ID 21** — triggers the nearest volcano
 
 ### Eruption
 
@@ -241,7 +246,7 @@ Open the dashboard HTML file directly:
 web/index.html
 ```
 
-Or connect to `http://localhost:8765` when the WebSocket server is running.
+The server itself is `ws://127.0.0.1:8765` — there is no HTTP page on that port.
 
 ### Features
 
@@ -258,9 +263,8 @@ Load real-world terrain data as a depth overlay.
 
 ### Controls
 
-- **`D` key** — toggles DEM overlay on/off
-- **`[` / `]` keys** — cycle through built-in terrains: **canyon**, **volcano**, **valley**, **islands**, **flat**
-- **`F5`** — saves a snapshot of the current terrain
+- **`F5`** — saves a snapshot of the current terrain to `assets/terrains/saved/`
+- DEM overlay / `[` `]` cycling is **not implemented** in the live app (`load_dem()` exists for scripts only)
 
 ### GeoTIFF Support
 

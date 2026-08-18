@@ -25,14 +25,13 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 ```
 
 **That's it.** The bootstrap self-elevates, signs you in to GitHub (one browser click — required since DuneBox-sandcam and DuneBox-docs are private), then runs `setup-windows.ps1`, which:
-- Installs Git, Python 3.12, uv, and the Microsoft Visual C++ Redistributable (x64) (silent, no prompts)
-- Clones both app repos and installs sandcam's Python dependencies
-- Fetches the **pre-built DuneBox app** — no Visual Studio, no compiling (requires the VC++ Redistributable, which the script installs automatically)
-  *(latest release → newest CI build artifact → triggers a cloud build and waits, in that order)*
-- Checks the Quadro P620 driver and creates desktop shortcuts
+- Installs Git + LFS, Python 3.12, uv, VC++ Redistributable, and checks for Kinect Runtime 2.0
+- Clones both app repos and `uv sync --extra kinect-v2`
+- Fetches the **pre-built DuneBox app** without overwriting a live `calibration.xml`
+- Creates desktop shortcuts named **DuneBox** (sandcam) and **DuneBox (Magic-Sand C++)**
 - `-Launch` starts sandcam right away
 
-Typically takes ~5 minutes if a release artifact is already available; 20–25+ minutes if a cloud build must be triggered. Both apps work without a Kinect (mouse-simulator mode).
+Typically takes ~5 minutes if a release artifact is already available; 20–25+ minutes if a cloud build must be triggered. Both apps work without a Kinect (sandcam mouse-simulator / C++ procedural terrain).
 
 ### Fully unattended (no clicks)
 To skip the one-time browser sign-in, provide a token with `repo` scope (required to clone the private repos):
