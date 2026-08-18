@@ -138,7 +138,7 @@ The **best long-term Kinect replacement**. The Femto Bolt is Azure Kinect SDK co
 
 ### DuneBox (C++)
 
-Works with the same AzureKinectHandler (set `kinectVersion = 3`) since it's Azure SDK compatible.
+**Not supported.** `kinectVersion=3` is refused at startup. Use sandcam for Femto / Azure.
 
 ### sandcam (Python)
 

@@ -102,6 +102,7 @@ Some addons ship with OF, others need to be downloaded into `openFrameworks/addo
 | `ofxDatGui` | ❌ No | `git clone https://github.com/thomwolf/ofxDatGui` into `addons/` (CI pin + OF 0.12 patches — see `build.yml`) |
 | `ofxParagraph` | ❌ No | `git clone https://github.com/braitsch/ofxParagraph` into `addons/` |
 | `ofxModal` | ❌ No | `git clone https://github.com/braitsch/ofxModal` into `addons/` |
+| `ofxKinectForWindows2` | ❌ No | Required for v2. CI clones elliotwoods/ofxKinectForWindows2 and defines `DUNEBOX_USE_KINECT_FOR_WINDOWS2` — see `build.yml` |
 
 ```bash
 cd C:\openFrameworks\addons\
@@ -148,16 +149,14 @@ The `src/WaterSimulation/` directory needs to be included in the project's build
 
 ## Step 6: First Run
 
-1. **Connect Kinect v1** via USB (with AC power adapter plugged in)
-2. **Windows only — install the Kinect driver first.** Windows has no built-in
-   Kinect v1 driver, so the camera won't be detected until you bind **libusbK**
-   to it with **Zadig** (one-time, ~2 min):
-   - Download [Zadig](https://zadig.akeo.ie), run it, **Options → List All Devices**
-   - Install **libusbK** for all three interfaces: **Xbox NUI Motor**, **Xbox NUI Camera**, **Xbox NUI Audio**
-   - Full step-by-step in the **[Troubleshooting guide](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk)**
-3. **Connect projector** via HDMI
-4. **Run DuneBox**
-5. The application should show the Kinect depth view and topographic mapping
+1. **Connect a Kinect v2** to a true USB 3.0 port (powered Xbox One adapter required)
+2. **Install Kinect for Windows Runtime 2.0** if `Kinect20.dll` is missing:
+   https://www.microsoft.com/download/details.aspx?id=44559
+   Committed settings are `<kinectVersion>2</kinectVersion>`. Do **not** run Zadig on a v2.
+3. **Using Kinect v1 instead?** Set `<kinectVersion>1</kinectVersion>` and bind **libusbK** with Zadig (see [Troubleshooting](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk)).
+4. **Connect projector** via HDMI
+5. **Run DuneBox** (`run.bat` or the **DuneBox (Magic-Sand C++)** shortcut)
+6. The application should show the Kinect depth view and topographic mapping
 
 ### No Kinect? No problem.
 DuneBox includes a **no-Kinect fallback** that generates a procedural sine-wave terrain. The water simulation will run on this test terrain so you can verify the GPU pipeline works.

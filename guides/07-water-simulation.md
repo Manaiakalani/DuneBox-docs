@@ -92,7 +92,7 @@ Original (unmodified) SARndbox shaders are preserved in `bin/data/shaders/water/
 The rain gesture detects hands above the sand surface:
 
 1. The system scans Kinect depth data for pixels significantly above the baseline sand level
-2. Any region more than ~50mm above the surface is treated as a "hand"
+2. Only a **band 80–400 mm** above the sand is treated as a hand (a tall pile no longer floods the box)
 3. Water is added at the hand's XY position with a configurable radius and rate
 4. Remove your hand → rain stops, water flows away naturally
 

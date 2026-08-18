@@ -149,20 +149,13 @@ if (Test-Path "$env:WINDIR\System32\VCRUNTIME140_1.dll") {
     Write-Host "  [ok] Visual C++ Redistributable installed" -ForegroundColor Green
 }
 
-# Kinect v2 runtime (Kinect20.dll). The committed DuneBox settings default to v2.
+# Kinect v2 runtime is not on winget. The committed C++ settings default to v2,
+# so warn if Kinect20.dll is missing rather than inventing a package id.
 if (Test-Path "$env:WINDIR\System32\Kinect20.dll") {
     Write-Host "  [ok] Kinect v2 runtime already installed" -ForegroundColor Green
 } else {
-    Write-Host "  [..] Installing Kinect for Windows Runtime 2.0..." -ForegroundColor Yellow
-    try {
-        winget install --id "Microsoft.KinectRuntime.2" -e @WINGET_ARGS | Out-Null
-    } catch {}
-    if (Test-Path "$env:WINDIR\System32\Kinect20.dll") {
-        Write-Host "  [ok] Kinect v2 runtime installed" -ForegroundColor Green
-    } else {
-        Write-Host "  [!!] Kinect20.dll not found. Install Runtime 2.0 from" -ForegroundColor Yellow
-        Write-Host "       https://www.microsoft.com/download/details.aspx?id=44559" -ForegroundColor Gray
-    }
+    Write-Host "  [!!] Kinect20.dll not found. Install Kinect Runtime 2.0 from" -ForegroundColor Yellow
+    Write-Host "       https://www.microsoft.com/download/details.aspx?id=44559" -ForegroundColor Gray
 }
 
 # ── Step 2: GitHub authentication ──────────────────────────────────────────────
@@ -207,6 +200,32 @@ Write-Step 4 "sandcam dependencies"
 Push-Location $SANDCAM_DIR
 uv sync --extra kinect-v2
 Pop-Location
+$sandcamSettings = Join-Path $SANDCAM_DIR "sandcam-settings.json"
+if (-not (Test-Path $sandcamSettings)) {
+    $example = Join-Path $SANDCAM_DIR "sandcam-settings.example.json"
+    if (Test-Path $example) {
+        Copy-Item $example $sandcamSettings
+    }
+    $cfg = @{
+        sensor_type     = "kinect_v2_sdk"
+        sensor_fallback = "mouse_simulator"
+    }
+    if (Test-Path $sandcamSettings) {
+        try {
+            $existing = Get-Content $sandcamSettings -Raw | ConvertFrom-Json
+            $existing.sensor_type = "kinect_v2_sdk"
+            if (-not $existing.sensor_fallback) { $existing | Add-Member sensor_fallback "mouse_simulator" }
+            $existing | ConvertTo-Json -Depth 8 | Set-Content $sandcamSettings -Encoding utf8
+        } catch {
+            $cfg | ConvertTo-Json | Set-Content $sandcamSettings -Encoding utf8
+        }
+    } else {
+        $cfg | ConvertTo-Json | Set-Content $sandcamSettings -Encoding utf8
+    }
+    Write-Host "  [ok] First-run settings: kinect_v2_sdk (existing files are left alone)" -ForegroundColor Green
+} else {
+    Write-Host "  [ok] Existing sandcam-settings.json left unchanged" -ForegroundColor Green
+}
 Write-Host "  [ok] sandcam dependencies installed" -ForegroundColor Green
 
 # ── Step 5: DuneBox pre-built binary ───────────────────────────────────────────
@@ -224,13 +243,17 @@ function Expand-IntoBin($zip) {
     Expand-Archive -Path $zip -DestinationPath $tmp -Force
     $dest = "$DUNEBOX_DIR\bin"
     if (-not (Test-Path $dest)) { New-Item $dest -ItemType Directory | Out-Null }
-    Get-ChildItem $tmp -Recurse -Include *.exe,*.dll | ForEach-Object {
+    Get-ChildItem $tmp -Recurse -File | Where-Object { $_.Extension -in ".exe", ".dll" } | ForEach-Object {
         Copy-Item $_.FullName -Destination $dest -Force
     }
     $data = Get-ChildItem $tmp -Recurse -Directory -Filter data | Select-Object -First 1
     if ($data) {
         # Copy missing data files only — never overwrite a live calibration.
-        robocopy $data.FullName (Join-Path $dest "data") /E /XC /XN /XO /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
+        # robocopy uses 0-7 for success (including "files copied").
+        & robocopy $data.FullName (Join-Path $dest "data") /E /XC /XN /XO /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
+        if ($LASTEXITCODE -ge 8) {
+            throw "robocopy failed with exit $LASTEXITCODE"
+        }
     }
     Get-ChildItem $dest -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
     Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
@@ -354,10 +377,10 @@ Write-Host @"
   ============================================================
 
   Launch:
-    sandcam  ->  double-click "DuneBox-sandcam" on the desktop
-    DuneBox  ->  double-click "DuneBox" on the desktop
+    sandcam  ->  double-click "DuneBox" on the desktop
+    DuneBox  ->  double-click "DuneBox (Magic-Sand C++)" on the desktop
 
-  sandcam runs immediately (mouse-simulator mode if no Kinect).
+  sandcam uses Kinect v2 (SDK) and falls back to the mouse simulator.
 "@ -ForegroundColor Cyan
 if (-not $duneboxReady) {
     Write-Host "  Note: DuneBox binary isn't present yet - its run.bat will fetch it`n        automatically once a CI build succeeds.`n" -ForegroundColor Yellow

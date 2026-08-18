@@ -91,12 +91,7 @@ For projector output, sandcam supports a **separate display window**:
 ## Features to Explore
 
 ### Biome-Aware Creatures
-Animals appear contextually based on terrain elevation:
-- Deep water → fish, sharks
-- Shallow water → crabs, turtles
-- Beach → seagulls
-- Grassland → rabbits, deer
-- Mountains → goats, eagles
+Modern set: **sharks** (water) and **dinosaurs** (land). Cycle with `V` for prehistoric species (T-Rex, raptor, pteranodon, stegosaurus, triceratops, brachiosaurus).
 
 Creature definitions are in `creatures.py` — easy to add your own!
 
@@ -189,7 +184,8 @@ sandcam supports multiple depth sensors via the `sensor_type` field in `sandcam-
 
 ```json
 {
-  "sensor_type": "kinect_v1"
+  "sensor_type": "kinect_v2_sdk",
+  "sensor_fallback": "mouse_simulator"
 }
 ```
 
