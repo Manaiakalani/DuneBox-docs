@@ -48,8 +48,8 @@ The bootstrap installs Git, Python 3.12, uv and the Visual C++ runtime, clones b
 
 It takes about five minutes when a prebuilt binary is available. Both apps run without a depth camera: sandcam falls back to a mouse-driven simulator and DuneBox (C++) to procedural terrain, so you can try everything before the hardware arrives.
 
-!!! note "Private repositories"
-    DuneBox-sandcam and DuneBox-docs are private, so the bootstrap asks you to sign in to GitHub once. For an unattended install, set `$env:GH_TOKEN` to a token with `repo` scope before running it.
+!!! note "Private sandcam repo"
+    DuneBox-sandcam is private, so the bootstrap asks you to sign in to GitHub once. For an unattended install, set `$env:GH_TOKEN` to a token with `repo` scope before running it. This docs site and the DuneBox (C++) repo are public.
 
 ## How it fits together
 

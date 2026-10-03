@@ -1,4 +1,4 @@
-# 01 — Hardware Guide
+# Hardware
 
 ## Overview
 
@@ -19,13 +19,13 @@ DuneBox needs four things: a **depth camera** (Kinect), a **projector**, a **com
 **Windows default is Kinect v2.** Install Runtime 2.0, use a true USB 3.0 port, and press **`A`** in sandcam after mounting. Keep v1 if that is what you already have.
 
 ### Kinect v1 Power
-The Xbox 360 Kinect **requires its AC power adapter** for PC use — it doesn't run on USB bus power alone. The adapter splits into:
+The Xbox 360 Kinect **requires its AC power adapter** for PC use. It does not run on USB bus power alone. The adapter splits into:
 - USB-A data cable → PC
 - DC barrel connector → wall outlet
 
 Make sure you have this adapter. They're available on eBay/Amazon for ~$10.
 
-### Kinect v1 on Windows — driver required
+### Kinect v1 on Windows: driver required
 Windows has no built-in driver for the Xbox 360 Kinect. Before DuneBox can see
 it, bind the **libusbK** driver to the three Kinect interfaces using **Zadig**
 (a one-time ~2-minute step). See the
@@ -39,16 +39,16 @@ for the exact steps.
 | Spec | Recommendation | Why |
 |---|---|---|
 | **Throw** | Short-throw | Must project downward from above the sandbox |
-| **Resolution** | XGA (1024×768) or higher | Kinect v1 depth is only 640×480 — XGA is plenty |
+| **Resolution** | XGA (1024×768) or higher | Kinect v1 depth is only 640×480: XGA is plenty |
 | **Aspect ratio** | 4:3 | Matches Kinect field of view and sandbox shape |
-| **Connection** | HDMI or DisplayPort | ⚠️ **No VGA** — analog causes pixel misalignment |
+| **Connection** | HDMI or DisplayPort | ⚠️ **No VGA**: analog causes pixel misalignment |
 | **Brightness** | 2000+ ANSI lumens | Indoor use; brighter is better for ambient light |
 | **Reference model** | BenQ MX631ST | ~$300–550, the UC Davis recommended model |
 
 ### Projector Mounting
-- Mount above the **rear long edge** of the sandbox (not center — projectors project above their centerline)
+- Mount above the **rear long edge** of the sandbox, not the centre. Projectors throw the image above their centreline.
 - Aim downward at the sand surface
-- Must be rigidly mounted — any wobble ruins calibration
+- Must be rigidly mounted: any wobble ruins calibration
 
 ---
 
@@ -79,7 +79,7 @@ Same as above but without the Quadro P620. Great for DuneBox and sandcam at 60 F
 #### 🥉 Surface Laptop 2
 
 Works for DuneBox/sandcam on Windows. Limitations:
-- Only 1× USB-A port (Kinect takes it — need Bluetooth peripherals)
+- Only 1× USB-A port (Kinect takes it: need Bluetooth peripherals)
 - No discrete GPU → no water simulation
 
 #### 🔴 Surface Pro 5th Gen

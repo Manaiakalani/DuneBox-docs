@@ -1,4 +1,4 @@
-# 09 — Depth Sensor Support
+# Depth sensors
 
 ## Overview
 
@@ -55,7 +55,7 @@ Set `kinectVersion` in `bin/data/settings/kinectProjectorSettings.xml`:
 |---|---|---|
 | `1` | Kinect v1 | 640×480 |
 | `2` | Kinect v2 | 512×424 |
-| `3` | Azure Kinect direct — **refused at startup** (use `4`) | — |
+| `3` | Azure Kinect direct (not wired; use `4`) | n/a |
 | `4` | Any sensor sandcam can read, shared over the network | 640×480 |
 
 **Kinect v2 requirements**: Kinect for Windows Runtime/SDK 2.0 and a true USB 3.0 port.
@@ -93,7 +93,7 @@ The original and most widely documented sensor for AR sandboxes.
 
 - **DuneBox (C++)**: Native support via `ofxKinect` (wraps libfreenect)
 - **sandcam (Python)**: Native support via libfreenect
-- **Windows driver required**: Install the **libusbK** driver via **Zadig** (one-time setup — see [Troubleshooting](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk))
+- **Windows driver required**: Install the **libusbK** driver via **Zadig** (one-time setup: see [Troubleshooting](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk))
 
 ---
 
@@ -110,12 +110,12 @@ Supported via `sensor_api.py`, which provides a unified interface across all sen
 ### Hardware Requirements
 - **USB 3.0** port (Kinect v2 won't work on USB 2.0)
 - **Xbox One Kinect Adapter** for PC connection (~$30–80 on eBay)
-- On Windows: install Kinect for Windows SDK 2.0 — [download id=44561](https://www.microsoft.com/en-us/download/details.aspx?id=44561) (includes the runtime, **Configuration Verifier**, Kinect Studio, and samples)
+- On Windows, install Kinect for Windows SDK 2.0 ([download](https://www.microsoft.com/en-us/download/details.aspx?id=44561)). It includes the runtime, **Configuration Verifier**, Kinect Studio, and samples.
 
 > After installing, the SDK's Configuration Verifier may show two orange `!`
 > warnings ("Failed to update configuration definitions" and "Unknown USB 3.0
-> port detected"). On modern PCs both are normally benign — see
-> [06 — Troubleshooting](06-troubleshooting.md) → *Kinect v2 Configuration
+> port detected"). On modern PCs both are normally benign: see
+> [Troubleshooting](06-troubleshooting.md) → *Kinect v2 Configuration
 > Verifier shows orange warnings* for what they mean and when to act.
 
 ---
@@ -142,9 +142,9 @@ uv sync --extra azure
 - Better in bright ambient light
 
 ### Disadvantages
-- Discontinued by Microsoft in 2023 — only available used ($200–400)
-- Requires Azure Kinect SDK (additional dependency)
-- SDK is Windows-only for the DuneBox C++ app
+- Discontinued by Microsoft in 2023, so you buy used ($200–400)
+- Needs the Azure Kinect SDK in sandcam (`uv sync --extra azure`)
+- That SDK is Windows-only
 
 ---
 
@@ -155,8 +155,8 @@ The **best long-term Kinect replacement**. The Femto Bolt is Azure Kinect SDK co
 ### Why Femto Bolt?
 
 - **~$300**, available new from Orbbec
-- **Actively manufactured** (2024+) — not discontinued
-- **Azure Kinect SDK compatible** — works with the same `k4a` API
+- **Actively manufactured** (2024+): not discontinued
+- **Azure Kinect SDK compatible**: works with the same `k4a` API
 - Same depth resolution and field of view as Azure Kinect DK
 - USB-C, no adapter needed
 
@@ -186,7 +186,7 @@ Supported in sandcam as an alternative depth sensor family.
 
 | Model | Type | Best For |
 |---|---|---|
-| **L515** | LiDAR | High accuracy, short range — ideal for sandboxes |
+| **L515** | LiDAR | High accuracy, short range: ideal for sandboxes |
 | **D435** | Stereo | Wider availability, good general-purpose depth |
 
 ### sandcam (Python)
@@ -211,8 +211,8 @@ Then set sensor type in `sandcam-settings.json`:
 
 ## Recommendation
 
-1. **Windows default** — **Kinect v2** (Runtime 2.0 + USB 3.0 adapter)
-2. **Budget / v1 box** — **Kinect v1** (`<kinectVersion>1</kinectVersion>` + Zadig/libusbK)
-3. **Already own a Kinect v2** — fully supported in both apps
-4. **New hardware** — **Orbbec Femto Bolt** in sandcam; DuneBox (C++) shares it with `kinectVersion=4`
-5. **Azure Kinect / RealSense** — same as Femto: sandcam reads it, DuneBox shares it
+1. **Windows default:** Kinect v2 (Runtime 2.0 and a USB 3.0 adapter)
+2. **Budget / existing v1 box:** Kinect v1 (`<kinectVersion>1</kinectVersion>` plus Zadig/libusbK)
+3. **Already own a Kinect v2:** fully supported in both apps
+4. **Buying new:** Orbbec Femto Bolt in sandcam; DuneBox shares it with `kinectVersion=4`
+5. **Azure Kinect or RealSense:** same as Femto: sandcam reads it, DuneBox shares it

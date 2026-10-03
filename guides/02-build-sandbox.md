@@ -1,8 +1,8 @@
-# 02 — Building the Sandbox
+# Building the sandbox
 
 ## Overview
 
-The sandbox is a plywood box filled with sand, mounted on a rigid frame with the Kinect and projector above it. The **4:3 aspect ratio is mandatory** — it matches the Kinect's field of view.
+The sandbox is a plywood box filled with sand, mounted on a rigid frame with the Kinect and projector above it. The 4:3 aspect ratio is **required**. It matches the Kinect's field of view.
 
 ---
 
@@ -29,7 +29,7 @@ The sandbox is a plywood box filled with sand, mounted on a rigid frame with the
 ### Dimensions
 - **Interior**: 40" × 30" × 4" deep (1016mm × 762mm × 102mm)
 - **Exterior**: ~41.5" × 31.5" × 5.5" (with ¾" plywood walls and base)
-- **Aspect ratio**: 4:3 — this is **mandatory**, not a suggestion
+- **Aspect ratio**: 4:3. This is **required**, not a suggestion.
 
 ### Cut List (from one 4'×8' plywood sheet)
 
@@ -43,16 +43,16 @@ The sandbox is a plywood box filled with sand, mounted on a rigid frame with the
 
 1. **Cut plywood** to dimensions above. Have the hardware store make the cuts if you don't have a table saw.
 
-2. **Dry fit** — lay out the base with sides standing on it. Check squareness by measuring diagonals (should be equal).
+2. **Dry fit**: lay out the base with sides standing on it. Check squareness by measuring diagonals (should be equal).
 
-3. **Glue + screw** — apply wood glue to the base edges, place sides, drive screws through the sides into the base edge every 6". Pre-drill to prevent splitting.
+3. **Glue + screw**: apply wood glue to the base edges, place sides, drive screws through the sides into the base edge every 6". Pre-drill to prevent splitting.
 
-4. **Seal interior** — apply 2–3 coats of polyurethane to the entire interior surface (base + sides). Let each coat dry 2–4 hours. This prevents moisture damage from damp sand.
+4. **Seal interior**: apply 2–3 coats of polyurethane to the entire interior surface (base + sides). Let each coat dry 2–4 hours. This prevents moisture damage from damp sand.
 
 5. **Let cure 24 hours** before adding sand.
 
 ### Pro Tips
-- Round or sand the interior edges — prevents sand from catching in sharp corners
+- Round or sand the interior edges: prevents sand from catching in sharp corners
 - Optional: line with heavy-duty plastic sheeting for extra waterproofing
 - The box should sit at a comfortable height for users (30–36" for adults, 24" for kids)
 
@@ -60,7 +60,7 @@ The sandbox is a plywood box filled with sand, mounted on a rigid frame with the
 
 ## Support Frame
 
-The frame holds the box, Kinect, and projector. **Rigidity is critical** — any flex or vibration ruins the projector-Kinect calibration.
+The frame holds the box, Kinect, and projector. Keep it rigid. Any flex or vibration ruins the projector-Kinect calibration.
 
 ### Option A: Steel Pipe (Easiest)
 
@@ -100,7 +100,7 @@ More expensive but incredibly rigid and adjustable. Use 1" (25mm) T-slot extrusi
 - Mount **directly above center** of the sandbox
 - Point **straight down** (perpendicular to sand surface)
 - Height: **~40 inches** (1 meter) above the sand surface for a 40" wide box
-- Use an L-bracket or 3D-printed mount — the Kinect has a standard ¼"-20 tripod thread on the bottom
+- Use an L-bracket or 3D-printed mount: the Kinect has a standard ¼"-20 tripod thread on the bottom
 
 ### Kinect Mounting Checklist
 - [ ] Centered over sandbox (measure both diagonals)
@@ -114,7 +114,7 @@ More expensive but incredibly rigid and adjustable. Use 1" (25mm) T-slot extrusi
 ## Mounting the Projector
 
 - Mount above the **rear long edge** of the sandbox (not center)
-- Most projectors project above their centerline — the image goes "up" from the lens
+- Most projectors project above their centerline: the image goes "up" from the lens
 - Short-throw projectors work best (less distance needed)
 - The projector should illuminate the entire sand surface with minimal overshoot
 
@@ -141,6 +141,6 @@ More expensive but incredibly rigid and adjustable. Use 1" (25mm) T-slot extrusi
    - Doesn't create dust clouds
    - Is safer to breathe around
 
-4. **Level the sand** initially — the software will map whatever surface you create, but start flat for calibration.
+4. **Level the sand** initially: the software will map whatever surface you create, but start flat for calibration.
 
 > ⚠️ **Do NOT use regular hardware store sand** without washing it first. Construction sand contains fine silica dust which is a serious respiratory hazard. Sandtastik is pre-washed and safe.

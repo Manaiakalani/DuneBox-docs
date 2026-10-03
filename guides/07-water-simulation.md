@@ -1,4 +1,4 @@
-# 07 — Water Simulation
+# Water simulation
 
 ## Overview
 
@@ -10,9 +10,9 @@ DuneBox's water simulation uses GLSL shaders extracted from [SARndbox](https://g
 
 ### The Physics
 The shallow-water equations model water flow as a 2D grid where each cell tracks:
-- **w** — water surface height
-- **hu** — momentum in x-direction (height × velocity)
-- **hv** — momentum in y-direction (height × velocity)
+- **w**: water surface height
+- **hu**: momentum in x-direction (height × velocity)
+- **hv**: momentum in y-direction (height × velocity)
 
 These are stored in an RGB32F texture: `(w, hu, hv)`.
 
@@ -78,10 +78,10 @@ Original (unmodified) SARndbox shaders are preserved in `bin/data/shaders/water/
 | `attenuation` | 0.99 | 0.9–1.0 | Lower = more friction (water stops sooner) |
 | `theta` | 1.5 | 1.0–2.0 | Minmod limiter: 1.0 = smoother, 2.0 = sharper waves |
 | `epsilon` | 0.01 | 0.001–0.1 | Prevents division-by-zero in dry cells |
-| `cellSize` | 1.0 | 0.1–10.0 | Physical scale factor — tune to match Kinect depth units |
+| `cellSize` | 1.0 | 0.1–10.0 | Physical scale factor: tune to match Kinect depth units |
 
 ### Tips
-- Start with defaults and adjust `cellSize` first — this has the biggest impact on whether water flows realistically
+- Start with defaults and adjust `cellSize` first: this has the biggest impact on whether water flows realistically
 - If water moves too fast, reduce `gravity` or increase `attenuation`
 - If water looks "blocky", reduce `theta` toward 1.0
 - If shallow water behaves erratically, increase `epsilon`
@@ -108,7 +108,7 @@ From the sandcam dashboard's **DuneBox** group, or the keyboard in DuneBox:
 | Control | Key | What it does |
 |---|---|---|
 | Water simulation | `w` | Turns the simulation on or off |
-| Evaporation | — | **Off**, **Slow** or **Fast**. Lakes slowly dry up so a long session doesn't flood the box |
+| Evaporation | dashboard | **Off**, **Slow** or **Fast**. Lakes slowly dry up so a long session doesn't flood the box |
 | Drain all water | `x` | Removes all water at once |
 | Show erosion | `e` | The erosion and sediment view below |
 
@@ -142,7 +142,7 @@ The shared tuning lives in `src/WaterSimulation/ErosionParams.h` (capacity, erod
 |---|---|---|
 | GTX 1060+ | 30–60 FPS | Full speed, smooth water |
 | **Quadro P620** | **20–35 FPS** | Solid for most water scenarios |
-| Intel UHD 630 | — | Water sim disabled (topology only) |
+| Intel UHD 630 | not supported | Water sim disabled (topology only) |
 
 The water simulation is the most GPU-intensive part of DuneBox. If FPS drops below 15, consider:
 - Running fewer simulation steps per frame
@@ -153,7 +153,7 @@ The water simulation is the most GPU-intensive part of DuneBox. If FPS drops bel
 
 ## Compute Shader Backend (GL 4.3+)
 
-On GPUs that support OpenGL 4.3 or later, DuneBox automatically uses **compute shaders** instead of the fragment shader pipeline. This is detected at startup — if GL 4.3 is unavailable, the original 8-pass fragment shader pipeline is used as a fallback.
+On GPUs that support OpenGL 4.3 or later, DuneBox automatically uses **compute shaders** instead of the fragment shader pipeline. This is detected at startup: if GL 4.3 is unavailable, the original 8-pass fragment shader pipeline is used as a fallback.
 
 ### Why Compute Shaders?
 
@@ -164,7 +164,7 @@ Compute shaders replace the 8 fragment passes with **5 compute dispatches**:
 | 8 FBO ping-pong passes | 5 compute dispatches |
 | Bathymetry + slope/flux + RK2 + boundary + add + render | `bathymetry_update.glsl` → `water_step.glsl` (predictor + corrector) → `boundary.glsl` → `water_add.glsl` + `water_render.glsl` |
 
-The key optimization is **shared memory** — slope calculation, flux computation, and derivative estimation are merged into a single dispatch because neighboring workgroup threads can share intermediate results via `shared` memory instead of writing to a texture and reading it back.
+The key optimization is **shared memory**: slope calculation, flux computation, and derivative estimation are merged into a single dispatch because neighboring workgroup threads can share intermediate results via `shared` memory instead of writing to a texture and reading it back.
 
 ### Workgroup Layout
 
@@ -209,14 +209,14 @@ DuneBox supports a **lava mode** that reuses the same shallow-water physics engi
 
 ### Controls
 
-- **`l` key** — toggles lava mode on/off
+- **`l` key**: toggles lava mode on/off
 - Activating lava mode automatically switches the color theme to **Volcanic**
 
 Lava is a **parameter set** on the same fluid (`FLUID_WATER` vs `FLUID_LAVA`), not a second simultaneous layer. There are no steam particles in the C++ app.
 
 ---
 
-## Configuration — `waterSettings.xml`
+## Configuration: `waterSettings.xml`
 
 Water simulation parameters are stored in an XML settings file that persists across sessions.
 
@@ -243,9 +243,9 @@ bin/data/settings/waterSettings.xml
 
 ### Behavior
 
-- **Loaded at startup** — the app reads this file on launch and applies all values
-- **Saved on exit** — any changes made during a session (via UI or keyboard) are written back
-- **Manual editing** — you can edit this file with a text editor to fine-tune parameters without recompiling; changes take effect on next launch
+- **Loaded at startup**: the app reads this file on launch and applies all values
+- **Saved on exit**: any changes made during a session (via UI or keyboard) are written back
+- **Manual editing**: you can edit this file with a text editor to fine-tune parameters without recompiling; changes take effect on next launch
 
 ---
 

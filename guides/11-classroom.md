@@ -1,4 +1,4 @@
-# 11 — Classroom
+# Classroom
 
 sandcam can run a lesson step by step from the [tablet dashboard](10-tablet-dashboard.md), keep score for teams, and show everything on the sand in English or Spanish.
 

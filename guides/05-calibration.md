@@ -1,4 +1,4 @@
-# 05 — Calibration
+# Calibration
 
 ## Overview
 
@@ -57,14 +57,14 @@ Before software calibration, ensure the physical setup is correct:
 - [ ] Pointing straight down (perpendicular to sand)
 - [ ] ~40" (1m) above sand surface
 - [ ] Level (use a bubble level on the Kinect body)
-- [ ] Firmly mounted — no wobble
+- [ ] Firmly mounted: no wobble
 
 ### Projector
 - [ ] Image fully covers the sand surface
 - [ ] Minimal overshoot past the sandbox edges
 - [ ] In focus across the entire surface (center AND corners)
 - [ ] No shadows from Kinect, frame, or cables
-- [ ] Firmly mounted — calibration breaks if it moves
+- [ ] Firmly mounted: calibration breaks if it moves
 
 ### Common Calibration Issues
 

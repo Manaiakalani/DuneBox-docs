@@ -1,4 +1,4 @@
-# 04 — Software Setup: DuneBox-sandcam (Python)
+# Software setup: sandcam (Python)
 
 ## Overview
 
@@ -14,8 +14,8 @@ DuneBox-sandcam is the hackable Python companion to DuneBox. It's ideal for rapi
 |---|---|---|
 | Python | 3.11+ | Runtime |
 | uv | latest | Package manager |
-| Kinect v1 + AC adapter | — | Depth camera (optional — has mouse simulator) |
-| websockets | — | Depth streaming server (installed by `uv sync`) |
+| Kinect (optional) | any type sandcam supports | Depth camera; falls back to the mouse simulator |
+| websockets | latest | Depth streaming server (installed by `uv sync`) |
 
 ### Optional Extras
 
@@ -49,14 +49,14 @@ uv sync
 ```
 
 This installs:
-- `pygame` — 60 FPS display + multi-display
-- `numpy` / `scipy` — array computation
-- `opencv-contrib-python` — ArUco marker detection
+- `pygame`: 60 FPS display + multi-display
+- `numpy` / `scipy`: array computation
+- `opencv-contrib-python`: ArUco marker detection
 - `libfreenect` bindings (ctypes wrapper)
-- `websockets` — depth streaming server + inter-app bridge
+- `websockets`: depth streaming server + inter-app bridge
 
 ### Windows Note
-sandcam ships with pre-compiled `freenect.dll` and `libusb-1.0.dll` — no C compilation needed on Windows.
+sandcam ships with pre-compiled `freenect.dll` and `libusb-1.0.dll`: no C compilation needed on Windows.
 
 ---
 
@@ -93,7 +93,7 @@ For projector output, sandcam supports a **separate display window**:
 ### Biome-Aware Creatures
 Modern set: **sharks** (water) and **dinosaurs** (land). Cycle with `V` for prehistoric species (T-Rex, raptor, pteranodon, stegosaurus, triceratops, brachiosaurus).
 
-Creature definitions are in `creatures.py` — easy to add your own!
+Creature definitions are in `creatures.py`: easy to add your own!
 
 ### ArUco Marker Triggers
 1. Print ArUco markers (OpenCV ArUco dictionary)
@@ -114,24 +114,19 @@ Enable the AI guide in settings for interactive narration. The guide describes t
 
 ---
 
-## New Features
+## Also included
 
-DuneBox-sandcam has gained 16 major features since the initial release:
-
-- **Sound effects** — ambient audio reacts to terrain and weather
-- **Dinosaurs** — prehistoric creature set alongside modern animals
-- **Volcanoes** — place and trigger volcanic eruptions
-- **Earthquakes** — manual earthquake trigger shakes the terrain
-- **Ecosystem simulation** — food chains, predator/prey dynamics
-- **Game modes** — Build a Dam, Volcano Defense, Watershed Puzzle, Biome Sculpt
-- **Day/night cycle** — animated lighting with adjustable speed
-- **Sensor abstraction** — Kinect v1/v2, Azure Kinect, RealSense via config
-- **Web dashboard** — browser-based depth viewer and controls
-- **Inter-app bridge** — TCP link to DuneBox (C++) on `localhost:9876`
-- **Contour lines** — togglable topographic contour overlay
-- **Terrain snapshots** — `F5` saves the current heightfield
-- **Creature set cycling** — Modern, Prehistoric, All, or None
-- **Settings sidebar** — in-app settings panel (Tab key)
+- **Sound effects**: ambient audio reacts to terrain and weather
+- **Dinosaurs**: prehistoric creature set alongside modern animals
+- **Volcanoes**: place and trigger volcanic eruptions
+- **Earthquakes**: keyboard or a slap on the sand
+- **Ecosystem**: plants grow near water; predator and prey
+- **Game modes**: Build a Dam, Volcano Defense, Watershed Puzzle, Biome Sculpt
+- **Day/night cycle**: animated lighting with adjustable speed
+- **Sensors**: Kinect v1/v2, Azure Kinect, Orbbec, RealSense
+- **Web dashboard**: live sand map and controls, including from a tablet
+- **Inter-app bridge**: TCP link to DuneBox (C++) on `localhost:9876`
+- **Contour lines**, terrain snapshots (`F5`), creature sets, and a settings sidebar (`Tab`)
 
 ---
 
@@ -219,6 +214,6 @@ Unknown keys are ignored. Copy `sandcam-settings.example.json` for the full port
 
 ## Next Steps
 
-- **[Calibration guide](05-calibration.md)** — aligning projector and Kinect
-- **[Customization guide](08-customization.md)** — adding themes and creatures
+- **[Calibration guide](05-calibration.md)**: aligning projector and Kinect
+- **[Customization guide](08-customization.md)**: adding themes and creatures
 - Set up the webcam for ArUco detection → `webcam_observer.py`

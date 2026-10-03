@@ -1,4 +1,4 @@
-# 08 — Customization & Features
+# Themes and creatures
 
 ## Overview
 
@@ -14,19 +14,19 @@ DuneBox includes **5 built-in color themes** that change the terrain elevation g
 |---|---|
 | **Topo** | Classic topographic map colors (green → brown → white) |
 | **Ocean** | Deep blue water emphasis, sandy shores |
-| **Volcanic** | Reds, oranges, and dark greys — pairs with lava mode |
+| **Volcanic** | Reds, oranges, and dark greys: pairs with lava mode |
 | **Ice Age** | Cool blues and whites, glacial feel |
 | **Alien** | Otherworldly purples, greens, and cyans |
 
 ### Controls
 
-- **`t` key** — cycles through themes
+- **`t` key**: cycles through themes
 - Active theme is saved in `bin/data/settings/sandSurfaceRendererSettings.xml`
 
 Each theme defines:
-- **Elevation gradient** — color ramp from lowest to highest terrain
-- **Water color** — tint applied to the water simulation overlay
-- **Contour color** — color of topographic contour lines
+- **Elevation gradient**: color ramp from lowest to highest terrain
+- **Water color**: tint applied to the water simulation overlay
+- **Contour color**: color of topographic contour lines
 
 ---
 
@@ -45,18 +45,18 @@ sandcam includes a full **dinosaur simulation** with 6 species, biome-aware plac
 | Pteranodon | Mountain peaks / sky | Aerial |
 | Brachiosaurus | Forest | Large herbivore |
 
-Each species has an **elevation range** — creatures only spawn in terrain zones matching their biome preference.
+Each species has an **elevation range**: creatures only spawn in terrain zones matching their biome preference.
 
 ### Predator-Prey Mechanics
 
 - **Predators** (T-Rex, Raptor) **chase** nearby herbivores
 - **Herbivores** (Stegosaurus, Triceratops, Brachiosaurus) **flee** from predators
 - **Triceratops** can **charge** predators in defense
-- Predators can **kill** prey on contact — prey respawns after a cooldown
+- Predators can **kill** prey on contact: prey respawns after a cooldown
 
 ### Controls
 
-- **`V` key** — cycles creature visibility: **Modern → Prehistoric → All → None**
+- **`V` key**: cycles creature sets (Modern, Prehistoric, All, None)
 
 ### ArUco Marker Triggers
 
@@ -79,9 +79,9 @@ Place and trigger volcanoes anywhere on the terrain.
 
 ### Placement
 
-- **`O` key** — toggles click-to-place; click the sand to plant a vent and erupt
-- **ArUco marker ID 20** — places a volcano at the tag (debounced; snaps to a nearby vent)
-- **ArUco marker ID 21** — triggers the nearest volcano
+- **`O` key**: toggles click-to-place; click the sand to plant a vent and erupt
+- **ArUco marker ID 20**: places a volcano at the tag (debounced; snaps to a nearby vent)
+- **ArUco marker ID 21**: triggers the nearest volcano
 
 ### Eruption
 
@@ -91,18 +91,18 @@ Place and trigger volcanoes anywhere on the terrain.
 
 Volcanoes cycle through 5 states:
 
-1. **Dormant** — visible cone, no activity
-2. **Rumbling** — screen shake, smoke particles begin
-3. **Erupting** — sparks and ash particles launch from the crater
-4. **Flowing** — lava flows downhill using **cellular automata** (each cell propagates to lower neighbors)
-5. **Cooling** — lava darkens, activity subsides, returns to dormant
+1. **Dormant**: visible cone, no activity
+2. **Rumbling**: screen shake, smoke particles begin
+3. **Erupting**: sparks and ash particles launch from the crater
+4. **Flowing**: lava flows downhill using **cellular automata** (each cell propagates to lower neighbors)
+5. **Cooling**: lava darkens, activity subsides, returns to dormant
 
 ### Particle Effects
 
-- **Smoke** — rising grey particles during rumbling and eruption
-- **Sparks** — bright orange particles launched from crater
-- **Ash** — dark particles that drift and settle
-- **Steam** — produced when lava meets water
+- **Smoke**: rising grey particles during rumbling and eruption
+- **Sparks**: bright orange particles launched from crater
+- **Ash**: dark particles that drift and settle
+- **Steam**: produced when lava meets water
 
 ### Inter-App Sync
 
@@ -116,15 +116,15 @@ A layered ecosystem that grows vegetation and manages food chains based on terra
 
 ### Controls
 
-- **`E` key** — toggles ecosystem on/off
+- **`E` key**: toggles ecosystem on/off
 
 ### Vegetation Layers
 
 Three layers of vegetation grow based on water proximity and elevation:
 
-1. **Grass** — grows near water at low-mid elevations
-2. **Shrubs** — grows at mid elevations where grass is established
-3. **Trees** — grows at mid elevations where shrubs are established (slowest)
+1. **Grass**: grows near water at low-mid elevations
+2. **Shrubs**: grows at mid elevations where grass is established
+3. **Trees**: grows at mid elevations where shrubs are established (slowest)
 
 ### Biome Zones
 
@@ -136,7 +136,7 @@ The terrain is classified into **7 biome zones** based on elevation and moisture
 
 - **Vegetation** → consumed by **herbivores**
 - **Herbivores** → hunted by **carnivores**
-- **Carrying capacity** limits populations naturally — overpopulation leads to die-off
+- **Carrying capacity** limits populations naturally: overpopulation leads to die-off
 
 ---
 
@@ -161,9 +161,9 @@ A dynamic lighting cycle that affects visuals and creature behavior across both 
 
 ### Controls
 
-- **`N` key** — toggles day/night cycle on/off
-- **`+` / `-` keys** — increase/decrease cycle speed
-- **`P` key** — pause the cycle at current phase
+- **`N` key**: toggles day/night cycle on/off
+- **`+` / `-` keys**: increase/decrease cycle speed
+- **`P` key**: pause the cycle at current phase
 
 ### Phases
 
@@ -176,8 +176,8 @@ A dynamic lighting cycle that affects visuals and creature behavior across both 
 
 ### Behavior Changes
 
-- **Creatures slow 50% at night** — reduced movement speed during night phase
-- **Sound changes** — crickets and owl sounds at night; bird calls at dawn (see Sound System)
+- **Creatures slow 50% at night**: reduced movement speed during night phase
+- **Sound changes**: crickets and owl sounds at night; bird calls at dawn (see Sound System)
 
 ---
 
@@ -187,13 +187,13 @@ Trigger earthquakes by physical interaction or keyboard.
 
 ### Activation
 
-- **Hand slap** — detected from rapid depth changes across the sensor
-- **`K` key** — manual trigger
+- **Hand slap**: detected from rapid depth changes across the sensor
+- **`K` key**: manual trigger
 
 ### Effects
 
 - **Expanding shockwave rings** radiate from the epicenter
-- **Dinosaur stampede** — all dinosaurs flee at 2× speed
+- **Dinosaur stampede**: all dinosaurs flee at 2× speed
 - **70% chance** to trigger eruption on nearby volcanoes
 
 ---
@@ -204,7 +204,7 @@ Spatial audio that reacts to terrain and simulation events.
 
 ### Controls
 
-- **`S` key** — mute/unmute all sound
+- **`S` key**: mute/unmute all sound
 
 ### Ambient Sounds
 
@@ -226,8 +226,8 @@ Spatial audio that reacts to terrain and simulation events.
 ### Configuration
 
 Sound settings are stored in the settings JSON:
-- **Master volume** — overall volume level
-- **Per-category volumes** — ambient, events, creatures, UI
+- **Master volume**: overall volume level
+- **Per-category volumes**: ambient, events, creatures, UI
 
 ---
 
@@ -245,7 +245,7 @@ Load real-world terrain data as a depth overlay.
 
 ### Controls
 
-- **`F5`** — saves a snapshot of the current terrain to `assets/terrains/saved/`
+- **`F5`**: saves a snapshot of the current terrain to `assets/terrains/saved/`
 - DEM overlay / `[` `]` cycling is **not implemented** in the live app (`load_dem()` exists for scripts only)
 
 ### GeoTIFF Support
@@ -264,7 +264,7 @@ TCP-based communication between sandcam (Python) and DuneBox (C++).
 
 ### Controls
 
-- **`B` key** — toggles the bridge on/off
+- **`B` key**: toggles the bridge on/off
 
 ### Architecture
 
@@ -286,19 +286,11 @@ TCP-based communication between sandcam (Python) and DuneBox (C++).
 
 ## ArUco Marker Reference
 
-Full table of supported ArUco marker IDs:
-
-| Marker ID | Event |
-|---|---|
-| 10 | Spawn T-Rex pack |
-| 11 | Spawn Raptor pack |
-| 12 | Spawn Pteranodon flock |
-| 13 | Extinction event |
-| 5 | Place volcano |
+IDs 1 to 5, 10 to 13, 20, 21 and 100 to 103 are listed under [Dinosaur Mode](#dinosaur-mode-sandcam) and in the sandcam setup guide.
 
 ### Adding Custom Marker Events
 
-1. **Print an ArUco marker** — use OpenCV's ArUco dictionary (4×4_50). Pick an unused ID.
+1. **Print an ArUco marker**: use OpenCV dictionary **DICT_4X4_250** (same as the files in sandcam's `calibration/` folder). Pick an unused ID.
 2. **Register the event** in `interaction_engine.py`
 3. **Attach the marker** to a physical toy (tape it to the bottom of a figurine, boat, etc.)
 4. **Place the toy on the sand** → the webcam detects the marker → the event fires
@@ -307,11 +299,11 @@ Full table of supported ArUco marker IDs:
 
 ## sandcam: Adding Custom Creatures
 
-Creatures are **biome-aware** — they appear based on terrain elevation. The system is defined in `creatures.py`.
+Creatures are **biome-aware**: they appear based on terrain elevation. The system is defined in `creatures.py`.
 
 ### Adding a New Creature
 
-1. **Create a sprite** — any PNG image with transparency. Place it in `assets/creatures/`.
+1. **Create a sprite**: any PNG image with transparency. Place it in `assets/creatures/`.
 
 2. **Register it in `creatures.py`**:
    ```python
@@ -336,16 +328,16 @@ Creatures are **biome-aware** — they appear based on terrain elevation. The sy
 The C++ DuneBox has a game plugin system in `src/Games/`. Each game is a class that inherits from a base game interface.
 
 Existing games:
-- **Shape an Island** — draw an island in the sand
-- **Sandimals** — fish and sharks swim in water areas
-- **Animals & Mothers** — match animals with their habitats
+- **Shape an Island**: draw an island in the sand
+- **Sandimals**: fish and sharks swim in water areas
+- **Animals & Mothers**: match animals with their habitats
 
-Adding new C++ games requires more effort than Python — refer to the existing game classes as templates.
+Adding new C++ games requires more effort than Python: refer to the existing game classes as templates.
 
 ---
 
 ## Inspiration & References
 
-- **[RiverWeyTrust/ARSandbox-Adds](https://github.com/RiverWeyTrust/ARSandbox-Adds)** — lava flows, snow effects
-- **[danigeos/sARndbox](https://github.com/danigeos/sARndbox)** — erosion & sedimentation simulation
-- **[SARndbox calibration videos](https://www.youtube.com/results?search_query=SARndbox)** — see what others have built
+- **[RiverWeyTrust/ARSandbox-Adds](https://github.com/RiverWeyTrust/ARSandbox-Adds)**: lava flows, snow effects
+- **[danigeos/sARndbox](https://github.com/danigeos/sARndbox)**: erosion & sedimentation simulation
+- **[SARndbox calibration videos](https://www.youtube.com/results?search_query=SARndbox)**: see what others have built

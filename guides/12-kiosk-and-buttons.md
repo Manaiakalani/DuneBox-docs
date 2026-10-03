@@ -1,4 +1,4 @@
-# 12 — Kiosk and Buttons
+# Kiosk and buttons
 
 For a sandbox that runs on its own in a museum, library or classroom: it starts with the PC, recovers from crashes and unplugged cables, follows opening hours, and visitors use big physical buttons instead of a keyboard.
 
