@@ -40,7 +40,7 @@ Under **Teams**, pick **2**, **3** or **4**. Each team gets a colour and a score
 
 **Language on the sand** switches the lesson text and new team names projected on the sand between **English** and **Español**. Lessons without Spanish text stay in English.
 
-The dashboard itself has its own **EN / ES** switch in the top bar, so the teacher's tablet and the sand can use different languages.
+The dashboard **EN / ES** switch in the top bar is separate: lesson titles, step text and confirmations on the tablet follow that switch, even if the sand is still in English.
 
 ---
 

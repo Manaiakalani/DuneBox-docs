@@ -187,7 +187,7 @@ The same tokens drive three surfaces: the web dashboard (the normative source, `
 - Geist for all UI text; Geist Mono only for measurements, PINs, URLs and key caps.
 - 44px minimum touch targets; 52px control rows.
 - Flat at rest; shadows only on floating layers (popovers, toasts) and the selected segment.
-- Motion is short and functional (150–220ms, one ease-out curve), and drops away under reduced motion.
+- Motion is short and functional (150 to 220ms, one ease-out curve), and drops away under reduced motion.
 
 ## Colors
 
@@ -236,7 +236,7 @@ A neutral, almost achromatic dark ramp with one cool blue accent and three statu
 - **Body Small** (400, 13px): meta lines, hints, field labels, status pills, segmented options.
 - **Label** (400, 12px): fact and stat captions (`dt`).
 - **Numeric** (Mono 500, 16px, tabular): the four live facts.
-- **Numeric Large** (Mono 500, 20px, tabular): game score and time, PIN entry and PIN display (PINs add 0.15–0.2em tracking).
+- **Numeric Large** (Mono 500, 20px, tabular): game score and time, PIN entry and PIN display (PINs add 0.15 to 0.2em tracking).
 
 The ramp is compact (12 / 13 / 14 / 16 / 20) because this is a console at arm's length, not a page; hierarchy comes from weight and ink level more than size.
 
@@ -247,7 +247,7 @@ The ramp is compact (12 / 13 / 14 / 16 / 20) because this is a console at arm's 
 
 ## Layout
 
-A two-column operator grid: the live view (fluid, `minmax(0, 1fr)`) and a control column (340–400px), 24px gap and padding, max width 1440px, centered. The live view is sticky under the top bar so the sand stays visible while the operator scrolls controls; to stay shorter than the viewport, the frame is sized from height (`--frame-h`, `100vh − 370px` on desktop) times the source aspect ratio (`--ar`, set from each frame's width and height), so it never letterboxes. Under it sit the facts strip and a short Activity list. The control column is split by app: a **sandcam** header over its groups, then a **DuneBox** header with that app's status pill over its group, so both apps read as equals. The top bar is sticky, 10px × 24px padding, with brand left and status pills plus one action pushed right.
+A two-column operator grid: the live view (fluid, `minmax(0, 1fr)`) and a control column (340 to 400px), 24px gap and padding, max width 1440px, centered. The live view is sticky under the top bar so the sand stays visible while the operator scrolls controls; to stay shorter than the viewport, the frame is sized from height (`--frame-h`, `100vh - 370px` on desktop) times the source aspect ratio (`--ar`, set from each frame's width and height), so it never letterboxes. Under it sit the facts strip and a short Activity list. The control column is split by app: a **sandcam** header over its groups, then a **DuneBox** header with that app's status pill over its group, so both apps read as equals. The top bar is sticky, 10px × 24px padding, with brand left and status pills plus one action pushed right.
 
 Spacing rhythm is a 4px base used mostly in 4 / 8 / 12 / 16 / 24 steps: 8 between inline items, 12 inside facts and cards, 16 between control groups and as panel side padding, 24 for page gutters.
 
@@ -381,7 +381,7 @@ In C++ use `ofColor::fromHex(0x52a8ff)`; in pygame use the tuple directly. Alpha
 - **Do** pair every status color with text, and write error copy that names the fix.
 - **Do** set every system number, PIN, URL and key in Geist Mono with tabular figures.
 - **Do** keep hit areas at 44px and control rows at 52px on every surface, native panels included.
-- **Do** use the single ease-out curve `cubic-bezier(0.16, 1, 0.3, 1)` at 150ms for color/border changes, 200–220ms for movement, and drop movement under `prefers-reduced-motion`.
+- **Do** use the single ease-out curve `cubic-bezier(0.16, 1, 0.3, 1)` at 150ms for color/border changes, 200 to 220ms for movement, and drop movement under `prefers-reduced-motion`.
 - **Do** keep Geist and Geist Mono vendored locally; the dashboard must work offline.
 
 ### Don't:
