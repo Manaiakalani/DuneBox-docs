@@ -1,0 +1,65 @@
+site_name: DuneBox
+site_description: Build guide for DuneBox, a home-built augmented reality sandbox.
+site_url: https://manaiakalani.github.io/DuneBox-docs/
+repo_url: https://github.com/Manaiakalani/DuneBox-docs
+repo_name: Manaiakalani/DuneBox-docs
+edit_uri: edit/main/guides/
+docs_dir: guides
+copyright: Documentation licensed under CC BY-SA 4.0
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: custom
+    accent: custom
+  font:
+    text: Geist
+    code: Geist Mono
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.footer
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.keys
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Hardware: 01-hardware.md
+      - Build the sandbox: 02-build-sandbox.md
+      - Set up DuneBox (C++): 03-setup-dunebox.md
+      - Set up sandcam (Python): 04-setup-sandcam.md
+      - Calibration: 05-calibration.md
+      - Run it from a tablet: 10-tablet-dashboard.md
+      - Troubleshooting: 06-troubleshooting.md
+  - Going further:
+      - Water simulation: 07-water-simulation.md
+      - Themes and creatures: 08-customization.md
+      - Depth sensors: 09-kinect-upgrades.md
+      - Classroom: 11-classroom.md
+      - Kiosk and buttons: 12-kiosk-and-buttons.md
+  - Credits: credits.md

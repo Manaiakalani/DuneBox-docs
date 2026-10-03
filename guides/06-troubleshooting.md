@@ -20,6 +20,8 @@ Press **`A`** to auto-calibrate `min_depth_mm` / `max_depth_mm` from the flat sa
 - **Check power**: Kinect v1 requires its AC power adapter; USB alone won't work
 - **Windows — install the libusbK driver first** (see below); plug/unplug a few times only helps *after* the driver is in place
 
+<a id="windows-installing-the-kinect-v1-driver-zadig--libusbk"></a>
+
 #### Windows: installing the Kinect v1 driver (Zadig + libusbK)
 
 DuneBox/ofxKinect talk to the Kinect through **libfreenect**, which on Windows

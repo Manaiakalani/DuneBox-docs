@@ -62,7 +62,8 @@ Located in `bin/data/shaders/water/adapted/`:
 | `Boundary.frag` | Enforces dry boundary at sandbox edges |
 | `WaterAdd.frag/vert` | Adds water at rain gesture positions |
 | `WaterUpdate.frag` | Applies evaporation/damping |
-| `WaterRender.frag/vert` | Renders water as semi-transparent blue overlay |
+| `WaterRender.frag/vert` | Renders water as semi-transparent blue overlay, plus erosion marks |
+| `Erosion.frag` | Carries sediment with the flow (erosion view) |
 | `passthrough.vert` | Simple vertex passthrough for fullscreen quads |
 
 Original (unmodified) SARndbox shaders are preserved in `bin/data/shaders/water/` for reference.
@@ -95,6 +96,43 @@ The rain gesture detects hands above the sand surface:
 2. Only a **band 80–400 mm** that is also **≥50 mm taller than nearby sand** is treated as a hand (a ridge no longer rains)
 3. Water is added at the hand's XY position with a configurable radius and rate
 4. Remove your hand → rain stops, water flows away naturally
+
+Rain from hands can be switched off in the dashboard (**DuneBox → Rain from hands**), for example when visitors keep leaning over the box.
+
+---
+
+## Water Controls
+
+From the sandcam dashboard's **DuneBox** group, or the keyboard in DuneBox:
+
+| Control | Key | What it does |
+|---|---|---|
+| Water simulation | `w` | Turns the simulation on or off |
+| Evaporation | — | **Off**, **Slow** or **Fast**. Lakes slowly dry up so a long session doesn't flood the box |
+| Drain all water | `x` | Removes all water at once |
+| Show erosion | `e` | The erosion and sediment view below |
+
+---
+
+## Erosion and Sedimentation
+
+With **Show erosion** on, flowing water picks up sediment, carries it downstream and drops it where it slows:
+
+- Fast, deep water carries more. Where it can carry more than it holds, it scours the bed.
+- Where the flow slows, at a slope break, a lake or the edge of a puddle, it drops sediment.
+- When water dries up, everything it carried is left behind.
+
+What you see:
+
+| On the sand | Meaning |
+|---|---|
+| Muddy brown water | Water carrying sediment |
+| Dark brown scars | Where water carved the bed (visible once the water drains) |
+| Pale sand patches | Deltas and deposits where the flow slowed |
+
+The real sand can't move on its own, so this is a drawn layer, not a change to the terrain the water flows over. Marks fade over about 20 seconds, and reshaping the sand by hand clears them where you dig. It is off for lava.
+
+The shared tuning lives in `src/WaterSimulation/ErosionParams.h` (capacity, erode and deposit rates, fade). The shaders are `Erosion.frag` (fragment path) and `erosion.glsl` (compute path); both give identical results.
 
 ---
 
@@ -152,7 +190,8 @@ Located in `bin/data/shaders/water/compute/`:
 | `water_step.glsl` | RK2 predictor (`mode=0`) and corrector (`mode=1`) |
 | `boundary.glsl` | Edge conditions |
 | `water_add.glsl` | Rain / evaporation |
-| `water_render.glsl` | Color overlay |
+| `water_render.glsl` | Color overlay, plus erosion marks |
+| `erosion.glsl` | Carries sediment with the flow (erosion view) |
 
 ---
 

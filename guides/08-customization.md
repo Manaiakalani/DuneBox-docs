@@ -233,27 +233,9 @@ Sound settings are stored in the settings JSON:
 
 ## Web Dashboard (sandcam)
 
-A browser-based dashboard for monitoring and remote control.
+Press **`U`** in sandcam, then open <http://127.0.0.1:8765/>. Setup, LAN access and the PIN are covered in [Run it from a tablet](10-tablet-dashboard.md).
 
-### Controls
-
-- **`U` key** — enables the WebSocket server on port **8765**
-
-### Access
-
-Open the dashboard HTML file directly:
-```
-web/index.html
-```
-
-The server itself is `ws://127.0.0.1:8765` — there is no HTTP page on that port.
-
-### Features
-
-- **Live depth view** — real-time terrain visualization
-- **FPS graph** — performance monitoring
-- **Creature stats** — population counts, species breakdown
-- **Remote controls** — change themes, toggle water, mute sound, start games from the browser
+To restyle it, edit `web/assets/app.css`. The color, type and spacing tokens at the top of that file are shared with the sandcam sidebar and the DuneBox (C++) panel and documented in `DESIGN.md` in each app repo; change them together so the three surfaces stay consistent.
 
 ---
 
@@ -297,7 +279,8 @@ TCP-based communication between sandcam (Python) and DuneBox (C++).
 | ArUco markers | sandcam → DuneBox | Marker positions and IDs |
 | Theme changes | sandcam → DuneBox | Theme switch commands |
 | Volcano eruptions | sandcam → DuneBox | Eruption triggers and lava state |
-| Water status | DuneBox → sandcam | Water simulation state |
+| App state | DuneBox → sandcam | Setup or running, depth camera, water, lava, theme, day and night, frame rate (every half second) |
+| Dashboard commands | sandcam → DuneBox | Water, lava, eruption, next theme, day and night, start |
 
 ---
 

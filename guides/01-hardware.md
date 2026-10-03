@@ -12,7 +12,8 @@ DuneBox needs four things: a **depth camera** (Kinect), a **projector**, a **com
 |---|---|---|---|
 | **Kinect v1 (Xbox 360)** | ✅ Native | ✅ Native | Models 1414 & 1473. Set `<kinectVersion>1</kinectVersion>` + Zadig/libusbK. |
 | **Kinect v2 (Xbox One)** | ✅ Default (v0.2.0+) | ✅ `kinect_v2_sdk` | Runtime 2.0, USB 3.0, Xbox One adapter ($30–80). Depth: 512×424. |
-| **Azure Kinect DK** | ❌ Not in this binary | ✅ via `pyk4a` | C++ `kinectVersion=3` is a hard error. Use sandcam. |
+| **Azure Kinect DK** | ✅ Through sandcam | ✅ via `pyk4a` | DuneBox uses `kinectVersion=4` with [sensor sharing](09-kinect-upgrades.md#use-any-sandcam-sensor-in-dunebox) on in sandcam. |
+| **Orbbec Femto Bolt / RealSense** | ✅ Through sandcam | ✅ `orbbec` / `realsense` | Same as Azure. Femto Bolt is the actively made Kinect replacement. |
 
 ### Recommendation
 **Windows default is Kinect v2.** Install Runtime 2.0, use a true USB 3.0 port, and press **`A`** in sandcam after mounting. Keep v1 if that is what you already have.

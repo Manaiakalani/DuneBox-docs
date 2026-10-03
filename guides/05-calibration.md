@@ -6,23 +6,30 @@ Calibration aligns the projector's output with the Kinect's depth view so that c
 
 ---
 
-## DuneBox Calibration (Auto-Chessboard)
+## DuneBox (C++) calibration
 
-DuneBox uses **automatic chessboard calibration** — much easier than the manual SARndbox method.
+DuneBox (C++) calibrates itself by projecting a chessboard and watching it with the depth camera, which is much easier than the manual SARndbox method. You do not print a board.
 
-### What You Need
-- Flat sand surface
-- Kinect and projector both connected and running
+### What you need
 
-DuneBox **projects** the chessboard — you do not print a board.
+- Sand raked flat and level
+- Depth camera and projector connected, DuneBox (C++) running
+- The room dimmed, and hands, cables and the frame out of the projector's path
 
-### Steps
+### Walkthrough
 
-1. **Flatten the sand** — make it as level as possible
-2. **Open the GUI `Calibration` folder** and click **"Automatically calibrate kinect & projector"**
-3. DuneBox **projects a chessboard pattern** onto the sand
-4. The Kinect **sees the projected pattern** and computes the transform
-5. Calibration is saved to `bin/data/settings/calibration.xml`
+The **Calibration** panel sits at the top of the settings on the right of the DuneBox (C++) window. The **Status** panel bottom left tells you which step is missing.
+
+1. **Check the depth camera.** Status should read *Depth camera: connected*. If it says *not found*, check USB and power before going further.
+2. **Draw the sand region.** Select **1. Draw the sand region**, then drag a rectangle over the sand in the depth view. Skip this if Status already reads *Sand region: set*.
+3. **Flatten the sand.** Rake it level; bumps distort the pattern.
+4. **Calibrate the projector.** Select **2. Calibrate projector** and follow the prompts. DuneBox projects a chessboard, the depth camera finds it, and the result is saved to `bin/data/settings/calibration.xml`.
+5. **Start.** Press ++space++ or select **Start sandbox**. Status reads *Sandbox: Running* and the topographic map appears on the sand.
+
+Turn on **Outline region on sand** to see the sand region projected as a check. If the map lands slightly off the box, **Refit region to calibration** tightens the region to the calibrated area.
+
+!!! tip "From the dashboard"
+    With sandcam running too, the web dashboard's DuneBox (C++) group shows whether the C++ app is in setup or running, and its **Start** button does the same as ++space++.
 
 ### If Calibration Fails
 - Ensure the sand is flat (bumps distort the pattern)
@@ -32,12 +39,12 @@ DuneBox **projects** the chessboard — you do not print a board.
 
 ---
 
-## sandcam Calibration
+## sandcam (Python) calibration
 
-sandcam does **not** have a projector-chessboard calibrator.
+sandcam does not have a projector chessboard calibrator. It has two simpler steps.
 
-- **Depth range (Kinect v2 SDK):** press **`A`** over flat sand. This writes `min_depth_mm` / `max_depth_mm`.
-- **Webcam ArUco overlay:** enable vision in the sidebar and show corner tags **100 / 101 / 102 / 103** (files in `calibration/`: TL, TR, BR, BL). That warps toy markers onto the heightfield; it does not align the projector.
+- **Depth range (Kinect v2 SDK).** Flatten the sand, keep hands clear, then press ++a++, select **Auto-calibrate depth** at the top of the sidebar (++tab++), or select **Calibrate depth** in the dashboard's Setup group. This writes `min_depth_mm` and `max_depth_mm`. Fine-tune with the **Min** and **Max** sliders under Calibration in the sidebar.
+- **Webcam ArUco overlay.** Turn on **Webcam vision** in the sidebar, select **Calibrate projector**, and show corner tags **100, 101, 102 and 103** (files in `calibration/`: top left, top right, bottom right, bottom left). This maps toy markers onto the heightfield; it does not align the projector.
 
 ---
 

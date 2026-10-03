@@ -1,0 +1,121 @@
+/* DuneBox tokens (DESIGN.md), shared with the operator dashboard. */
+[data-md-color-scheme="slate"] {
+  --md-hue: 0;
+  --md-default-bg-color: #0a0a0a;
+  --md-default-fg-color: #ededed;
+  --md-default-fg-color--light: #a1a1a1;
+  --md-default-fg-color--lighter: #8a8a8a;
+  --md-default-fg-color--lightest: #262626;
+  --md-primary-fg-color: #0a0a0a;
+  --md-primary-bg-color: #ededed;
+  --md-accent-fg-color: #52a8ff;
+  --md-typeset-color: #ededed;
+  --md-typeset-a-color: #52a8ff;
+  --md-code-bg-color: #111111;
+  --md-code-fg-color: #ededed;
+  --md-footer-bg-color: #0a0a0a;
+  --md-footer-bg-color--dark: #0a0a0a;
+  --md-typeset-table-color: #262626;
+}
+
+.md-header,
+.md-tabs {
+  border-bottom: 1px solid #262626;
+  box-shadow: none;
+}
+.md-header--shadow { box-shadow: none; }
+
+.md-typeset {
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+.md-typeset h1 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #ededed;
+}
+.md-typeset h2,
+.md-typeset h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.md-typeset code {
+  border: 1px solid #262626;
+  border-radius: 6px;
+  font-size: 0.85em;
+}
+.md-typeset pre > code { border: 0; }
+.md-typeset pre {
+  border: 1px solid #262626;
+  border-radius: 8px;
+}
+
+.md-typeset table:not([class]) {
+  border: 1px solid #262626;
+  border-radius: 8px;
+  font-size: 0.75rem;
+}
+.md-typeset table:not([class]) th {
+  background: #111111;
+  font-weight: 600;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border: 1px solid #262626;
+  border-radius: 8px;
+  background: #111111;
+  box-shadow: none;
+  font-size: 0.75rem;
+}
+
+.md-typeset kbd {
+  background: #1f1f1f;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  box-shadow: none;
+  color: #ededed;
+  font-family: var(--md-code-font-family);
+}
+
+.md-typeset .md-button {
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #ededed;
+  font-weight: 500;
+}
+.md-typeset .md-button--primary {
+  background: #ededed;
+  border-color: #ededed;
+  color: #0a0a0a;
+}
+.md-typeset .md-button:hover {
+  background: #1f1f1f;
+  border-color: #3a3a3a;
+  color: #ededed;
+}
+.md-typeset .md-button--primary:hover {
+  background: #cfcfcf;
+  border-color: #cfcfcf;
+  color: #0a0a0a;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.6rem;
+  margin: 1.2rem 0;
+}
+.grid-cards > div {
+  padding: 0.8rem 1rem;
+  border: 1px solid #262626;
+  border-radius: 8px;
+  background: #111111;
+}
+.grid-cards > div p { margin: 0.3rem 0 0; color: #a1a1a1; }
+.grid-cards > div strong a { color: #ededed; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; }
+}
