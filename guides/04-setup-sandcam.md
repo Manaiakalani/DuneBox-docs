@@ -132,7 +132,6 @@ DuneBox-sandcam has gained 16 major features since the initial release:
 - **Terrain snapshots** — `F5` saves the current heightfield
 - **Creature set cycling** — Modern, Prehistoric, All, or None
 - **Settings sidebar** — in-app settings panel (Tab key)
-- **WebSocket depth server** — stream depth data to browsers
 
 ---
 
@@ -152,7 +151,7 @@ DuneBox-sandcam has gained 16 major features since the initial release:
 | `S` | Toggle sound mute |
 | `O` | Toggle volcano click-to-place |
 | `K` | Manual earthquake trigger |
-| `U` | Toggle WebSocket depth server (`ws://127.0.0.1:8765`) |
+| `U` | Toggle the web dashboard (`http://127.0.0.1:8765/`) |
 | `B` | Toggle inter-app bridge |
 | `F1` | Game: Build a Dam |
 | `F2` | Game: Volcano Defense |
@@ -167,14 +166,9 @@ DuneBox-sandcam has gained 16 major features since the initial release:
 
 ## Web Dashboard
 
-When the WebSocket depth server is enabled (press `U`), it listens on **`ws://127.0.0.1:8765`** (localhost only). There is no HTTP server on that port.
+Press `U` and sandcam serves its dashboard at **<http://127.0.0.1:8765/>**. The status line flashes the address. It shows the live sand map in the current color theme and controls both apps: theme, contours, creatures, day and night, volcanoes, games, depth calibration, and DuneBox (C++) water and lava when it's running.
 
-Open `DuneBox-sandcam/web/index.html` in a browser (or serve that folder with any static file server). The page connects to the WebSocket.
-
-The dashboard provides:
-- Live depth data visualization
-- Terrain statistics and heatmap
-- Remote control of sandbox settings
+By default it only listens on this PC. To use it from a tablet, see [Run it from a tablet](10-tablet-dashboard.md).
 
 ---
 

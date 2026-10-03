@@ -4,6 +4,8 @@
 
 This repo contains the complete build guide for DuneBox — a home-built augmented reality sandbox that projects topographic maps, GPU-accelerated water simulation, and interactive creatures onto real sand.
 
+**Read it as a site:** <https://manaiakalani.github.io/DuneBox-docs/>, or preview locally with `pip install -r requirements-docs.txt` then `mkdocs serve`.
+
 ## DuneBox Repos
 
 | Repo | What | Tech | Visibility |
@@ -56,12 +58,15 @@ $env:GH_TOKEN = "ghp_your_token_here"
 3. **[Software Setup: DuneBox](guides/03-setup-dunebox.md)** — Pre-built install, or build from source with Visual Studio
 4. **[Software Setup: DuneBox-sandcam](guides/04-setup-sandcam.md)** — Python install, test with mouse simulator
 5. **[Calibration](guides/05-calibration.md)** — Aligning the projector and Kinect
-6. **[Troubleshooting](guides/06-troubleshooting.md)** — Common problems and fixes
+6. **[Run it from a tablet](guides/10-tablet-dashboard.md)** — The web dashboard, LAN access and the PIN
+7. **[Troubleshooting](guides/06-troubleshooting.md)** — Common problems and fixes
 
 ### Advanced
-7. **[Water Simulation](guides/07-water-simulation.md)** — How the GPU water sim works, tuning parameters
-8. **[Custom Themes & Creatures](guides/08-customization.md)** — Adding your own content
-9. **[Kinect v2 & Azure DK](guides/09-kinect-upgrades.md)** — Upgrading beyond Kinect v1
+8. **[Water Simulation](guides/07-water-simulation.md)** — How the GPU water sim works, tuning parameters
+9. **[Custom Themes & Creatures](guides/08-customization.md)** — Adding your own content
+10. **[Kinect v2 & Azure DK](guides/09-kinect-upgrades.md)** — Upgrading beyond Kinect v1
+
+**[Credits](guides/credits.md)** — SARndbox, Magic-Sand and the other projects DuneBox builds on
 
 ## Quick Overview
 
