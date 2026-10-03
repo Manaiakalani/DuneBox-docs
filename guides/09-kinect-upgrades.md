@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Windows DuneBox binary defaults to **Kinect v2**. Kinect v1 still works if you set `<kinectVersion>1</kinectVersion>` and install the Zadig/libusbK driver. Azure Kinect / Femto are **not** supported in the C++ app.
+The Windows DuneBox binary defaults to **Kinect v2**. Kinect v1 still works if you set `<kinectVersion>1</kinectVersion>` and install the Zadig/libusbK driver. Azure Kinect, Orbbec Femto and RealSense reach DuneBox (C++) through sandcam: see [Use any sandcam sensor in DuneBox](#use-any-sandcam-sensor-in-dunebox).
 
 ---
 
@@ -22,7 +22,7 @@ The Windows DuneBox binary defaults to **Kinect v2**. Kinect v1 still works if y
 
 | Feature | Kinect v1 | Kinect v2 | Azure Kinect | Orbbec Femto Bolt |
 |---|---|---|---|---|
-| DuneBox (C++) | ✅ Native | ✅ ofxKinectForWindows2 (pre-built) | ❌ Unsupported (`kinectVersion=3` is a hard error) | ❌ Unsupported |
+| DuneBox (C++) | ✅ Native | ✅ ofxKinectForWindows2 (pre-built) | ✅ via sandcam (`kinectVersion=4`) | ✅ via sandcam (`kinectVersion=4`) |
 | sandcam (Python) | ✅ Native | ✅ sensor_api.py | ✅ via pyk4a | ✅ via pyorbbecsdk |
 
 ---
@@ -55,11 +55,35 @@ Set `kinectVersion` in `bin/data/settings/kinectProjectorSettings.xml`:
 |---|---|---|
 | `1` | Kinect v1 | 640×480 |
 | `2` | Kinect v2 | 512×424 |
-| `3` | Azure / Femto — **refused at startup** | — |
+| `3` | Azure Kinect direct — **refused at startup** (use `4`) | — |
+| `4` | Any sensor sandcam can read, shared over the network | 640×480 |
 
 **Kinect v2 requirements**: Kinect for Windows Runtime/SDK 2.0 and a true USB 3.0 port.
 
 If no Kinect is connected, DuneBox uses **procedural sine-wave terrain**, not a mouse sculptor (that is sandcam only).
+
+---
+
+## Use any sandcam sensor in DuneBox
+
+sandcam reads more sensors than DuneBox (C++): Azure Kinect, Orbbec Femto, RealSense and Kinect v2 through the SDK. It can share its depth stream so DuneBox uses the same sensor, with no extra drivers in the C++ app.
+
+1. Set up the sensor in sandcam first and check it works (dashboard → **Setup check**).
+2. In the sandcam dashboard, turn on **Sensor → Share this sensor with DuneBox**. It is remembered.
+3. In DuneBox, set `<kinectVersion>4</kinectVersion>` in `bin/data/settings/kinectProjectorSettings.xml` and start it.
+4. The dashboard's **Sensor** hint changes to "DuneBox is receiving depth from this sensor". Calibrate DuneBox as usual.
+
+Only one program can open a sensor at a time, so sandcam must be running whenever DuneBox uses version 4. If sandcam restarts, DuneBox reconnects on its own within a few seconds.
+
+| Sensor in sandcam | Depth | Colour (for calibration) |
+|---|---|---|
+| Azure Kinect (pyk4a) | ✅ | ✅ aligned to depth |
+| RealSense | ✅ | ✅ aligned to depth |
+| Orbbec Femto (pyorbbecsdk) | ✅ | ⚠️ approximate. Calibrate with the depth image if the colour view looks offset |
+| Kinect v1 / v2 | ✅ | ⚠️ not aligned. Use `kinectVersion` 1 or 2 directly instead |
+| Mouse simulator | ✅ | Grey depth image |
+
+Under the hood: sandcam serves 640×480 depth in millimetres on TCP port 9877, on this PC only, plus the sensor's field of view so DuneBox's world coordinates are right. Colour is only sent while DuneBox is calibrating.
 
 ---
 
@@ -100,7 +124,7 @@ Supported via `sensor_api.py`, which provides a unified interface across all sen
 
 ### DuneBox (C++)
 
-**Not supported.** `kinectVersion=3` is refused at startup even if you define `DUNEBOX_USE_AZURE_KINECT` — the handler is not wired. Use sandcam.
+**Through sandcam.** Set `kinectVersion=4` and turn on sensor sharing in sandcam ([how](#use-any-sandcam-sensor-in-dunebox)). Direct support (`kinectVersion=3`) is refused at startup even if you define `DUNEBOX_USE_AZURE_KINECT`; the handler is not wired.
 
 ### sandcam (Python)
 
@@ -138,7 +162,7 @@ The **best long-term Kinect replacement**. The Femto Bolt is Azure Kinect SDK co
 
 ### DuneBox (C++)
 
-**Not supported.** `kinectVersion=3` is refused at startup. Use sandcam for Femto / Azure.
+**Through sandcam.** Set `kinectVersion=4` and turn on sensor sharing in sandcam ([how](#use-any-sandcam-sensor-in-dunebox)).
 
 ### sandcam (Python)
 
@@ -181,7 +205,7 @@ Then set sensor type in `sandcam-settings.json`:
 }
 ```
 
-> **Note**: Intel RealSense is not currently supported in the C++ DuneBox app.
+> **Note**: DuneBox (C++) uses RealSense through sandcam: set `kinectVersion=4` ([how](#use-any-sandcam-sensor-in-dunebox)).
 
 ---
 
@@ -190,5 +214,5 @@ Then set sensor type in `sandcam-settings.json`:
 1. **Windows default** — **Kinect v2** (Runtime 2.0 + USB 3.0 adapter)
 2. **Budget / v1 box** — **Kinect v1** (`<kinectVersion>1</kinectVersion>` + Zadig/libusbK)
 3. **Already own a Kinect v2** — fully supported in both apps
-4. **Azure Kinect / Femto** — sandcam only; C++ DuneBox refuses `kinectVersion=3`
-5. **RealSense** — sandcam only
+4. **New hardware** — **Orbbec Femto Bolt** in sandcam; DuneBox (C++) shares it with `kinectVersion=4`
+5. **Azure Kinect / RealSense** — same as Femto: sandcam reads it, DuneBox shares it

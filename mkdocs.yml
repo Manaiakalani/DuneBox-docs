@@ -59,5 +59,7 @@ nav:
   - Going further:
       - Water simulation: 07-water-simulation.md
       - Themes and creatures: 08-customization.md
-      - Kinect v2 and Azure Kinect: 09-kinect-upgrades.md
+      - Depth sensors: 09-kinect-upgrades.md
+      - Classroom: 11-classroom.md
+      - Kiosk and buttons: 12-kiosk-and-buttons.md
   - Credits: credits.md
