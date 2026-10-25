@@ -26,6 +26,12 @@ powershell -ExecutionPolicy Bypass -File .\kiosk.ps1 -Uninstall
 
 `-Install` registers a scheduled task named **DuneBox kiosk**. Turn on automatic sign-in for the PC's account so the sandbox comes back by itself after a reboot or power cut. Restarts are logged to `kiosk.log` next to the script.
 
+Each start updates both apps, then launches the copy already on disk if an update cannot finish.
+
+sandcam runs `git pull --ff-only` and `uv sync`. A failed pull still starts the current checkout.
+
+With `-WithDuneBox`, the C++ app uses the same check as `run.bat`. When the latest GitHub release is newer than `bin\data\VERSION`, the kiosk downloads that zip and replaces `Magic-Sand.exe`. `calibration.xml` and the other live settings stay in place. The check gives up after 20 seconds, so a slow network still starts the sandbox.
+
 ---
 
 ## Opening hours and the projector

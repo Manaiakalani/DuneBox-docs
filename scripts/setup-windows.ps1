@@ -14,8 +14,8 @@
       2. Signs in to GitHub only when a token is already set
       3. Clones DuneBox + DuneBox-sandcam
       4. Installs sandcam's Python dependencies (uv sync)
-      5. Fetches the pre-built DuneBox app (release → CI artifact → triggers a
-         build and waits, in that order) so no Visual Studio is ever needed
+      5. Fetches the pre-built DuneBox app, and replaces an older exe when a
+         newer release is published (live settings stay put)
       6. Checks the Nvidia driver and creates desktop shortcuts
       7. Optionally launches sandcam right away (-Launch)
 
@@ -230,48 +230,78 @@ Write-Host "  [ok] sandcam dependencies installed" -ForegroundColor Green
 Write-Step 5 "DuneBox app (pre-built, no Visual Studio)"
 
 function Expand-IntoBin($zip) {
-    if (-not (Test-Path "$DUNEBOX_DIR\bin")) { New-Item "$DUNEBOX_DIR\bin" -ItemType Directory | Out-Null }
+    $dest = Join-Path $DUNEBOX_DIR "bin"
+    if (-not (Test-Path $dest)) { New-Item $dest -ItemType Directory | Out-Null }
     # Strip the Mark-of-the-Web from the archive *before* extracting so the MOTW
     # does not propagate onto the extracted files (SmartScreen/SAC otherwise
     # blocks the unsigned exe).
     Unblock-File -Path $zip -ErrorAction SilentlyContinue
-    $tmp = Join-Path $env:TEMP "dunebox-extract"
-    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
-    New-Item -ItemType Directory -Path $tmp | Out-Null
-    Expand-Archive -Path $zip -DestinationPath $tmp -Force
-    $dest = "$DUNEBOX_DIR\bin"
-    if (-not (Test-Path $dest)) { New-Item $dest -ItemType Directory | Out-Null }
-    Get-ChildItem $tmp -Recurse -File | Where-Object { $_.Extension -in ".exe", ".dll" } | ForEach-Object {
-        Copy-Item $_.FullName -Destination $dest -Force
-    }
-    $data = Get-ChildItem $tmp -Recurse -Directory -Filter data | Select-Object -First 1
-    if ($data) {
-        # Copy missing data files only — never overwrite a live calibration.
-        # robocopy uses 0-7 for success (including "files copied").
-        & robocopy $data.FullName (Join-Path $dest "data") /E /XC /XN /XO /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
-        if ($LASTEXITCODE -ge 8) {
-            throw "robocopy failed with exit $LASTEXITCODE"
+    $extractor = Join-Path $DUNEBOX_DIR "extract-release.ps1"
+    try {
+        if (Test-Path $extractor) {
+            # Same extract run.bat uses: refresh exe, shaders and fonts, keep settings.
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $extractor $zip $dest
+            if ($LASTEXITCODE -ne 0) { throw "extract-release.ps1 exited $LASTEXITCODE" }
+        } else {
+            $tmp = Join-Path $env:TEMP "dunebox-extract"
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Path $tmp | Out-Null
+            Expand-Archive -Path $zip -DestinationPath $tmp -Force
+            Get-ChildItem $tmp -Recurse -File | Where-Object { $_.Extension -in ".exe", ".dll" } | ForEach-Object {
+                Copy-Item $_.FullName -Destination $dest -Force
+            }
+            $data = Get-ChildItem $tmp -Recurse -Directory -Filter data | Select-Object -First 1
+            if ($data) {
+                & robocopy $data.FullName (Join-Path $dest "data") /E /XC /XN /XO /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
+                if ($LASTEXITCODE -ge 8) { throw "robocopy failed with exit $LASTEXITCODE" }
+            }
+            Get-ChildItem $dest -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
         }
+    } finally {
+        Remove-Item $zip -ErrorAction SilentlyContinue
     }
-    Get-ChildItem $dest -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
-    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item $zip -ErrorAction SilentlyContinue
-    return (Test-Path "$DUNEBOX_DIR\bin\Magic-Sand.exe")
+    return (Test-Path (Join-Path $dest "Magic-Sand.exe"))
 }
 
 function Get-DuneBoxBinary {
     $exe = "$DUNEBOX_DIR\bin\Magic-Sand.exe"
-    if (Test-Path $exe) { Write-Host "  [ok] DuneBox already installed" -ForegroundColor Green; return $true }
+    $bin = "$DUNEBOX_DIR\bin"
+    $checker = Join-Path $DUNEBOX_DIR "release-is-newer.ps1"
+    $hadExe = Test-Path $exe
+    if ($hadExe -and (Test-Path $checker)) {
+        # Exit 0 means the published release is newer than bin\data\VERSION.
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $checker -Repo "$REPO_OWNER/DuneBox" -BinDir $bin
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  [ok] DuneBox is current" -ForegroundColor Green
+            return $true
+        }
+        Write-Host "  [..] A newer DuneBox release is available. Updating..." -ForegroundColor Yellow
+    } elseif ($hadExe) {
+        Write-Host "  [ok] DuneBox already installed" -ForegroundColor Green
+        return $true
+    }
 
-    # (a) Published release asset
+    # (a) Published release asset. No sign-in. Re-runs land here only when newer.
     $zip = "$env:TEMP\DuneBox-windows-x64.zip"
     try {
         gh release download --repo "$REPO_OWNER/DuneBox" --pattern "$ARTIFACT_NAME.zip" --output $zip 2>$null
         if (Test-Path $zip) {
-            if (Expand-IntoBin $zip) { Write-Host "  [ok] Installed from latest release" -ForegroundColor Green; return $true }
+            if (Expand-IntoBin $zip) {
+                if ($hadExe) {
+                    Write-Host "  [ok] Updated from the latest release. Live settings were left in place." -ForegroundColor Green
+                } else {
+                    Write-Host "  [ok] Installed from latest release" -ForegroundColor Green
+                }
+                return $true
+            }
             Write-Host "  [!!] Release zip did not contain Magic-Sand.exe - trying CI artifact..." -ForegroundColor Yellow
         }
     } catch {}
+    if ($hadExe -and (Test-Path $exe)) {
+        Write-Host "  [!!] Could not download the update. Keeping the installed copy." -ForegroundColor Yellow
+        return $true
+    }
 
     # (b) Artifact from the most recent successful CI build (no tag needed)
     $runId = $null
