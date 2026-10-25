@@ -235,7 +235,7 @@ Sound settings are stored in the settings JSON:
 
 Press **`U`** in sandcam, then open <http://127.0.0.1:8765/>. Setup, LAN access and the PIN are covered in [Run it from a tablet](10-tablet-dashboard.md).
 
-To restyle it, edit `web/assets/app.css`. The color, type and spacing tokens at the top of that file are shared with the sandcam sidebar and the DuneBox (C++) panel and documented in `DESIGN.md` in each app repo; change them together so the three surfaces stay consistent.
+To restyle it, edit `web/assets/app.css`. The color, type and spacing tokens at the top of that file are shared with the sandcam sidebar and the DuneBox (C++) panel and documented in [DESIGN.md](https://github.com/Manaiakalani/DuneBox-docs/blob/main/DESIGN.md); change them together so the three surfaces stay consistent.
 
 ---
 

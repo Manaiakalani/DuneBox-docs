@@ -29,7 +29,7 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 - Installs Git + LFS, Python 3.12, uv, VC++ Redistributable, and checks for Kinect Runtime 2.0
 - Clones both app repos and `uv sync --extra kinect-v2`
 - Fetches the **pre-built DuneBox app** without overwriting a live `calibration.xml`
-- Creates desktop shortcuts named **DuneBox** (sandcam) and **DuneBox (Magic-Sand C++)**
+- Creates desktop shortcuts named **DuneBox** (sandcam) and **DuneBox (C++)**
 - `-Launch` starts sandcam right away
 
 Typically takes ~5 minutes if a release artifact is already available; 20–25+ minutes if a cloud build must be triggered. Both apps work without a Kinect (sandcam mouse-simulator / C++ procedural terrain).

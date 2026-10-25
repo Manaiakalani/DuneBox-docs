@@ -26,19 +26,6 @@ powershell -ExecutionPolicy Bypass -File .\kiosk.ps1 -Uninstall
 
 `-Install` registers a scheduled task named **DuneBox kiosk**. Turn on automatic sign-in for the PC's account so the sandbox comes back by itself after a reboot or power cut. Restarts are logged to `kiosk.log` next to the script.
 
-### Linux
-
-`sandcam-kiosk.service` is the same thing as a systemd user service:
-
-```bash
-mkdir -p ~/.config/systemd/user
-cp sandcam-kiosk.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable --now sandcam-kiosk
-```
-
-It assumes the repo is at `~/DuneBox-sandcam`; edit `WorkingDirectory` in the file if not.
-
 ---
 
 ## Opening hours and the projector

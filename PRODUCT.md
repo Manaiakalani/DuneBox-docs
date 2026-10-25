@@ -2,6 +2,8 @@
 
 <!-- impeccable:product-schema 1 -->
 
+This file is the canonical product brief. The DuneBox and DuneBox-sandcam repositories link here instead of keeping their own copies.
+
 ## Platform
 
 web

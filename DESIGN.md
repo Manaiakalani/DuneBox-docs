@@ -171,6 +171,8 @@ components:
 
 # Design System: DuneBox
 
+This file is the canonical design system. The DuneBox and DuneBox-sandcam repositories link here instead of keeping their own copies.
+
 ## Overview
 
 **Creative North Star: "The Quiet Console"**

@@ -155,7 +155,7 @@ The `src/WaterSimulation/` directory needs to be included in the project's build
    Committed settings are `<kinectVersion>2</kinectVersion>`. Do **not** run Zadig on a v2.
 3. **Using Kinect v1 instead?** Set `<kinectVersion>1</kinectVersion>` and bind **libusbK** with Zadig (see [Troubleshooting](06-troubleshooting.md#windows-installing-the-kinect-v1-driver-zadig--libusbk)).
 4. **Connect projector** via HDMI
-5. **Run DuneBox** (`run.bat` or the **DuneBox (Magic-Sand C++)** shortcut)
+5. **Run DuneBox** (`run.bat` or the **DuneBox (C++)** shortcut)
 6. The application should show the Kinect depth view and topographic mapping
 
 ### No Kinect? No problem.

@@ -88,7 +88,7 @@ Least suitable. Dual-core CPU, thermal throttling, 1 USB-A port. OK for casual s
 
 ### Minimum Specs (any PC)
 
-| Spec | DuneBox (Magic-Sand) | sandcam | Water simulation |
+| Spec | DuneBox (C++) | sandcam | Water simulation |
 |---|---|---|---|
 | CPU | x86 quad-core, 2GHz+ | Any modern CPU | x86, 3GHz+ |
 | GPU | Integrated OK | None needed | **OpenGL 3.2+** (4.3+ for compute); Nvidia recommended, AMD untested |

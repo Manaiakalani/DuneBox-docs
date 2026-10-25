@@ -44,7 +44,7 @@ The bootstrap installs Git, Python 3.12, uv and the Visual C++ runtime, clones b
 | Shortcut | Starts |
 |---|---|
 | **DuneBox** | sandcam (Python) |
-| **DuneBox (Magic-Sand C++)** | DuneBox (C++) |
+| **DuneBox (C++)** | C++ renderer |
 
 It takes about five minutes when a prebuilt binary is available. Both apps run without a depth camera: sandcam falls back to a mouse-driven simulator and DuneBox (C++) to procedural terrain, so you can try everything before the hardware arrives.
 

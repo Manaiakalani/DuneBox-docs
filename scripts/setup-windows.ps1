@@ -338,18 +338,20 @@ Write-Step 7 "Desktop shortcuts"
 $desktop = [System.Environment]::GetFolderPath("Desktop")
 $ws = New-Object -ComObject WScript.Shell
 foreach ($app in @(
-    @{ Name = "DuneBox";                     Dir = $SANDCAM_DIR },
-    @{ Name = "DuneBox (Magic-Sand C++)";    Dir = $DUNEBOX_DIR }
+    @{ Name = "DuneBox";          Dir = $SANDCAM_DIR; Description = "DuneBox AR sandbox" },
+    @{ Name = "DuneBox (C++)";    Dir = $DUNEBOX_DIR; Description = "DuneBox C++ renderer" }
 )) {
     $sc = $ws.CreateShortcut("$desktop\$($app.Name).lnk")
     $sc.TargetPath = "$($app.Dir)\run.bat"
     $sc.WorkingDirectory = $app.Dir
-    $sc.Description = $app.Name
+    $sc.Description = $app.Description
     if (Test-Path "$($app.Dir)\icon.ico") { $sc.IconLocation = "$($app.Dir)\icon.ico" }
     $sc.Save()
 }
 $legacy = Join-Path $desktop "DuneBox-sandcam.lnk"
 if (Test-Path $legacy) { Remove-Item $legacy -Force }
+$oldCpp = Join-Path $desktop "DuneBox (Magic-Sand C++).lnk"
+if (Test-Path $oldCpp) { Remove-Item $oldCpp -Force }
 Write-Host "  [ok] Shortcuts created on the desktop" -ForegroundColor Green
 
 # ── Summary ────────────────────────────────────────────────────────────────────
@@ -375,8 +377,8 @@ Write-Host @"
   ============================================================
 
   Launch:
-    sandcam  ->  double-click "DuneBox" on the desktop
-    DuneBox  ->  double-click "DuneBox (Magic-Sand C++)" on the desktop
+    sandcam       ->  double-click "DuneBox" on the desktop
+    DuneBox (C++) ->  double-click "DuneBox (C++)" on the desktop
 
   sandcam uses Kinect v2 (SDK) and falls back to the mouse simulator.
 "@ -ForegroundColor Cyan
