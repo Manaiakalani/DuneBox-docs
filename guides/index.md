@@ -7,7 +7,7 @@ A home-built augmented reality sandbox. A depth camera reads the shape of real s
 
 ## Two apps, one sandbox
 
-DuneBox ships as two apps that run on the same PC. Use either one, or both at once: they find each other automatically over a local link, and the web dashboard controls both.
+DuneBox ships as two apps that run on the same PC. Use either one, or both at once: they find each other over a local link, and the web dashboard controls both. To share one depth camera, turn on **Share this sensor with DuneBox** in sandcam and set DuneBox (C++) to `kinectVersion` 4 ([how](09-kinect-upgrades.md#use-any-sandcam-sensor-in-dunebox)). Two apps both opening Kinect v2 will fight over the camera.
 
 <div class="grid-cards" markdown>
 <div markdown>

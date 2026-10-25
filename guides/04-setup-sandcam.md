@@ -75,8 +75,9 @@ sandcam automatically enters **mouse simulator mode**:
 - Great for development and testing
 
 ### With Kinect Connected
-- Kinect v1 depth data drives the terrain in real-time
-- Make sure the AC adapter is plugged in (Kinect v1 won't work on USB power alone)
+The Windows default is Kinect v2 (`kinect_v2_sdk`). Install the [Kinect for Windows Runtime 2.0](https://www.microsoft.com/download/details.aspx?id=44559) and use a USB 3.0 port.
+
+Kinect v1 (`sensor_type` set to `kinect_v1`) needs its AC power adapter. USB power alone is not enough.
 
 ---
 
