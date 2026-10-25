@@ -5,9 +5,8 @@
 
 .DESCRIPTION
     This is the single entry point for a fresh Windows box. It self-elevates to
-    Administrator, makes sure GitHub CLI exists, signs you in to GitHub (required
-    because DuneBox-sandcam and DuneBox-docs are private repos), clones
-    DuneBox-docs, then runs the main unattended installer. Pass-through args go
+    Administrator, makes sure GitHub CLI exists, clones DuneBox-docs (all three
+    repos are public), then runs the main unattended installer. Pass-through args go
     straight to setup-windows.ps1.
 
 .EXAMPLE
@@ -75,17 +74,19 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
     }
 }
 
-# ── Sign in (token or one browser flow) ────────────────────────────────────────
+# Sign in only when a token is already available. Public clones do not need it.
+# A token matters later, when setup has to trigger a DuneBox cloud build.
 if (-not $Token) {
     if     ($env:GH_TOKEN)     { $Token = $env:GH_TOKEN }
     elseif ($env:GITHUB_TOKEN) { $Token = $env:GITHUB_TOKEN }
 }
-gh auth status 2>$null | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    if ($Token) { $Token | gh auth login --hostname github.com --git-protocol https --with-token }
-    else        { gh auth login --hostname github.com --git-protocol https --web }
+if ($Token) {
+    gh auth status 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        $Token | gh auth login --hostname github.com --git-protocol https --with-token
+    }
+    gh auth setup-git 2>$null | Out-Null
 }
-gh auth setup-git 2>$null | Out-Null
 
 # ── Clone/refresh docs, then run the installer ─────────────────────────────────
 if (Test-Path "$DOCS_DIR\.git") {

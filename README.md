@@ -11,22 +11,21 @@ This repo contains the complete build guide for DuneBox: a home-built augmented 
 | Repo | What | Tech | Visibility |
 |---|---|---|---|
 | **[DuneBox](https://github.com/Manaiakalani/DuneBox)** | Primary AR sandbox: topo maps, water sim, games | C++ / OpenFrameworks | Public |
-| **[DuneBox-sandcam](https://github.com/Manaiakalani/DuneBox-sandcam)** | Hackable sandbox: creatures, ArUco triggers, AI guide | Python / pygame | Private (auth required) |
+| **[DuneBox-sandcam](https://github.com/Manaiakalani/DuneBox-sandcam)** | Hackable sandbox: creatures, ArUco triggers, AI guide | Python / pygame | Public |
 | **[DuneBox-docs](https://github.com/Manaiakalani/DuneBox-docs)** | This repo: build guide, BOM, troubleshooting | Markdown | Public ([site](https://manaiakalani.github.io/DuneBox-docs/)) |
 
 ## ⚡ Quick Start (Windows)
 
-On your sandbox PC, open an **elevated PowerShell** (right-click → *Run as administrator*) and paste the commands below. Sign in when asked: DuneBox-sandcam is private.
+On your sandbox PC, open an **elevated PowerShell** (right-click → *Run as administrator*) and paste the commands below. All three repos are public, so this does not ask you to sign in.
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
 winget install --id GitHub.cli -e --silent --accept-source-agreements --accept-package-agreements
-gh auth login --hostname github.com --git-protocol https --web
 gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 & "$HOME\DuneBox-docs\scripts\bootstrap.ps1" -Launch
 ```
 
-**That's it.** The bootstrap self-elevates, signs you in to GitHub if needed (sandcam is private), then runs `setup-windows.ps1`, which:
+**That's it.** The bootstrap self-elevates, then runs `setup-windows.ps1`, which:
 - Installs Git + LFS, Python 3.12, uv, VC++ Redistributable, and checks for Kinect Runtime 2.0
 - Clones both app repos and `uv sync --extra kinect-v2`
 - Fetches the **pre-built DuneBox app** without overwriting a live `calibration.xml`
@@ -36,7 +35,7 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 Typically takes ~5 minutes if a release artifact is already available; 20–25+ minutes if a cloud build must be triggered. Both apps work without a Kinect (sandcam mouse-simulator / C++ procedural terrain).
 
 ### Fully unattended (no clicks)
-To skip the one-time browser sign-in, provide a token with `repo` scope (needed to clone private sandcam):
+A token is only needed when no DuneBox release exists yet and the installer has to trigger a cloud build:
 
 ```powershell
 $env:GH_TOKEN = "ghp_your_token_here"

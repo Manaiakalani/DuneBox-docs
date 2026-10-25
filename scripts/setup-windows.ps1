@@ -6,13 +6,12 @@
 .DESCRIPTION
     Targets any Windows 10/11 PC with an Nvidia GPU (tested on the Lenovo
     ThinkCentre M720Q + Quadro P620). Designed to run unattended: every step
-    is non-interactive except a single GitHub sign-in (required because
-    DuneBox-sandcam and DuneBox-docs are private repos — only DuneBox itself
-    is public).
+    is non-interactive. All three repos are public, so cloning does not
+    require a GitHub sign-in.
 
     What it does (~5 min):
       1. Installs Git, GitHub CLI, Python 3.12, and uv (via winget, silent)
-      2. Authenticates GitHub (token if provided, else one browser sign-in)
+      2. Signs in to GitHub only when a token is already set
       3. Clones DuneBox + DuneBox-sandcam
       4. Installs sandcam's Python dependencies (uv sync)
       5. Fetches the pre-built DuneBox app (release → CI artifact → triggers a
@@ -28,8 +27,8 @@
     sandcam still installs fully; DuneBox can be fetched later via run.bat.
 
 .PARAMETER Token
-    A GitHub PAT with `repo` scope (required to clone the private repos). When
-    set, sign-in is fully non-interactive. Falls back to $env:GH_TOKEN /
+    A GitHub PAT. Optional. Used only to trigger a DuneBox cloud build when
+    no release exists yet. Falls back to $env:GH_TOKEN /
     $env:GITHUB_TOKEN.
 
 .EXAMPLE
@@ -37,7 +36,7 @@
     $env:GH_TOKEN = "ghp_xxx"; .\setup-windows.ps1 -Launch
 
 .EXAMPLE
-    # Normal use — one browser sign-in, everything else automatic:
+    # Normal use. Clones are public, so this does not open a browser.
     .\setup-windows.ps1 -Launch
 
 .NOTES
@@ -159,7 +158,7 @@ if (Test-Path "$env:WINDIR\System32\Kinect20.dll") {
 }
 
 # ── Step 2: GitHub authentication ──────────────────────────────────────────────
-Write-Step 2 "GitHub sign-in (required for private repos)"
+Write-Step 2 "GitHub sign-in (optional)"
 if (-not $Token) {
     if     ($env:GH_TOKEN)     { $Token = $env:GH_TOKEN }
     elseif ($env:GITHUB_TOKEN) { $Token = $env:GITHUB_TOKEN }
@@ -173,12 +172,11 @@ if ($authed) {
     Write-Host "  [..] Signing in with supplied token..." -ForegroundColor Yellow
     $Token | gh auth login --hostname github.com --git-protocol https --with-token
     Write-Host "  [ok] Signed in (token)" -ForegroundColor Green
+    gh auth setup-git 2>$null | Out-Null
 } else {
-    Write-Host "  [..] One-time browser sign-in (required to clone DuneBox-sandcam and DuneBox-docs)." -ForegroundColor Yellow
-    Write-Host "       A code will appear - paste it into the browser that opens." -ForegroundColor Gray
-    gh auth login --hostname github.com --git-protocol https --web
+    Write-Host "  [ok] Skipping sign-in. DuneBox, sandcam, and the docs are public." -ForegroundColor Green
+    Write-Host "       A token is only needed to trigger a cloud build when no release exists." -ForegroundColor Gray
 }
-gh auth setup-git 2>$null | Out-Null   # let git use gh credentials for clones
 
 # ── Step 3: Clone repos ────────────────────────────────────────────────────────
 Write-Step 3 "Clone repositories"
