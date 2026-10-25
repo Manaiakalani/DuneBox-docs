@@ -34,7 +34,6 @@ On the sandbox PC, open PowerShell as administrator and run:
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
 winget install --id GitHub.cli -e --silent --accept-source-agreements --accept-package-agreements
-gh auth login --hostname github.com --git-protocol https --web
 gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 & "$HOME\DuneBox-docs\scripts\bootstrap.ps1" -Launch
 ```

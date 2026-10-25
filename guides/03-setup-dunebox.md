@@ -32,7 +32,6 @@ On your sandbox PC, open an **elevated PowerShell** and run the one-command boot
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
 winget install --id GitHub.cli -e --silent --accept-source-agreements --accept-package-agreements
-gh auth login --hostname github.com --git-protocol https --web
 gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 & "$HOME\DuneBox-docs\scripts\bootstrap.ps1" -Launch
 ```
@@ -41,7 +40,7 @@ This fetches the pre-built `.exe`, installs both apps and their dependencies, an
 
 > **Note**: The pre-built `Magic-Sand.exe` requires the **Microsoft Visual C++ Redistributable (x64)**. Without it the app exits immediately with error `0xC0000135`. The bootstrap script installs this automatically via `winget install Microsoft.VCRedist.2015+.x64`.
 
-Already cloned? Just double-click **`run.bat`** in the DuneBox folder: it performs the same release→artifact auto-download on its own.
+Already cloned? Double-click **`run.bat`** in the DuneBox folder. It downloads the latest release without a GitHub sign-in, and replaces an older `Magic-Sand.exe` when a newer release is published. Live settings, including `calibration.xml`, stay in place. A sign-in is only asked for when no release exists and the launcher has to download a CI build.
 
 > The Windows binary is produced by GitHub Actions (`.github/workflows/build.yml`). You can trigger a build any time from the Actions tab (**Run workflow**) or with `gh workflow run "Build & Release" --repo Manaiakalani/DuneBox`.
 
