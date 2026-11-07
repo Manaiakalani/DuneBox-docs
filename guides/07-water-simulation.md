@@ -22,6 +22,8 @@ Water flows from high terrain to low terrain. The flow speed depends on the heig
 
 Each frame, 8 shader passes run in sequence:
 
+![One frame of water: eight GLSL passes from bathymetry to the blue overlay](diagrams/water-simulation.png)
+
 ```
 Kinect depth → [1. Bathymetry Update] → terrain texture
                         ↓

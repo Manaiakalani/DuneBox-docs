@@ -4,6 +4,8 @@
 
 DuneBox needs four things: a **depth camera** (Kinect), a **projector**, a **computer**, and a **sandbox**. You likely already own the first three.
 
+![DuneBox from the side: a Kinect and a short-throw projector over the sand, with the booth computer beside the box](diagrams/hardware-cutaway.png)
+
 ---
 
 ## Kinect Depth Camera
