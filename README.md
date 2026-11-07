@@ -32,7 +32,7 @@ gh repo clone Manaiakalani/DuneBox-docs "$HOME\DuneBox-docs"
 - Creates desktop shortcuts named **DuneBox** (sandcam) and **DuneBox (C++)**
 - `-Launch` starts sandcam right away
 
-Typically takes ~5 minutes if a release artifact is already available; 20–25+ minutes if a cloud build must be triggered. Both apps work without a Kinect (sandcam mouse-simulator / C++ procedural terrain).
+Typically takes ~5 minutes if a release artifact is already available; 20-25+ minutes if a cloud build must be triggered. Both apps work without a Kinect (sandcam mouse-simulator / C++ procedural terrain).
 
 ### Fully unattended (no clicks)
 A token is only needed when no DuneBox release exists yet and the installer has to trigger a cloud build:
@@ -97,7 +97,7 @@ $env:GH_TOKEN = "ghp_your_token_here"
 | Kinect v1, v2, Azure DK | n/a | $0 |
 | Projector | n/a | $0 |
 | Lenovo M720Q + Quadro P620 | n/a | $0 |
-| n/a | Sand + box + frame + cables | **$220–365** |
+| n/a | Sand + box + frame + cables | **$220-365** |
 
 ## License
 
