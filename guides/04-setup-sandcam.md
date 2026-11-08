@@ -62,7 +62,7 @@ sandcam ships with pre-compiled `freenect.dll` and `libusb-1.0.dll`: no C compil
 
 ## Step 3: Run
 
-On Windows, double-click **`run.bat`** or the **DuneBox** shortcut. It fast-forwards this checkout (`git pull --ff-only`) and runs `uv sync`, then launches. The pull gives up after 45 seconds, and a failed update still starts the copy already on disk.
+On Windows, double-click **`run.bat`** or the **DuneBox** shortcut. It fast-forwards this checkout (`git pull --ff-only`) and runs `uv sync`, then launches. The pull gives up after 45 seconds, and a failed update still starts the copy already on disk. After a successful check, the shortcut skips the network for 6 hours. The kiosk still checks at each sign-in.
 
 ```powershell
 uv run python main.py
