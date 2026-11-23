@@ -101,4 +101,4 @@ $env:GH_TOKEN = "ghp_your_token_here"
 
 ## License
 
-Documentation is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+Documentation is licensed under [CC BY-SA 4.0](LICENSE). Copyright (c) 2026 Maximilian Stein.
